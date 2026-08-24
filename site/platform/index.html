@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Platform | Alphe AI</title>
+    <meta
+      name="description"
+      content="How Alphe routes: a resident classifier, live model pricing, quality verification and semantic caching behind one OpenAI-compatible endpoint."
+    />
+    <meta name="theme-color" content="#08090a" />
+    <!-- index, follow is the default and is written down anyway, because the line
+         exists for max-image-preview: without it Google caps the preview at a
+         thumbnail no matter how large og.png is (it is 1200x630), which is the
+         difference between a card and a favicon in Discover and in the image
+         strip. -->
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <!-- .ico for Safari and the older crawlers, .svg for everything current,
+         square PNG for the icon iOS masks itself. See index.html. -->
+    <link rel="icon" href="/media/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/media/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
+    <link rel="canonical" href="https://alpheai.com/platform/" />
+    <!-- The Markdown twin of this page, served at this same URL to anything that
+         sends `Accept: text/markdown` — see site/negotiate.php. The link element
+         is here for clients that read the document rather than the headers. -->
+    <link rel="alternate" type="text/markdown" href="/platform/index.md" />
+    <meta property="og:site_name" content="Alphe" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://alpheai.com/platform/" />
+    <meta property="og:title" content="Platform | Alphe AI" />
+    <meta property="og:description" content="How Alphe routes: a resident classifier, live model pricing, quality verification and semantic caching behind one OpenAI-compatible endpoint." />
+    <meta property="og:image" content="https://alpheai.com/media/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Platform | Alphe AI" />
+    <meta name="twitter:description" content="How Alphe routes: a resident classifier, live model pricing, quality verification and semantic caching behind one OpenAI-compatible endpoint." />
+    <meta name="twitter:image" content="https://alpheai.com/media/og.png" />
+    <!-- Two crumbs, because that is the whole depth of this site. It exists so a
+         result for an inner page carries "alpheai.com > Platform" instead of a bare
+         URL. Unknown script type, so the CSP's script-src never applies. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://alpheai.com/platform/#webpage",
+            "url": "https://alpheai.com/platform/",
+            "name": "Platform | Alphe AI",
+            "description": "How Alphe routes: a resident classifier, live model pricing, quality verification and semantic caching behind one OpenAI-compatible endpoint.",
+            "isPartOf": { "@id": "https://alpheai.com/#website" },
+            "about": { "@id": "https://alpheai.com/#organization" },
+            "inLanguage": "en",
+            "breadcrumb": { "@id": "https://alpheai.com/platform/#breadcrumb" }
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://alpheai.com/platform/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://alpheai.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Platform",
+                "item": "https://alpheai.com/platform/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/geist-sans-latin-400-normal.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/geist-mono-latin-400-normal.woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/sections.css" />
+    <script src="/assets/js/boot.js"></script>
+    <script type="module" src="/assets/js/main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="nav" data-nav>
+      <div class="container nav__inner">
+        <a class="nav__brand" href="/" aria-label="Alphe home">
+          <img class="nav__mark" src="/media/logo.png" alt="" width="22" height="22" />
+          <span class="nav__wordmark">Alphe</span>
+        </a>
+        <button class="nav__toggle" data-nav-toggle aria-label="Menu" aria-expanded="false">
+          <span></span>
+        </button>
+        <nav class="nav__links">
+          <a class="nav__link" href="/platform/">Platform</a>
+          <a class="nav__link" href="/pricing/">Pricing</a>
+          <a class="nav__link" href="/about/">About</a>
+          <a class="btn btn--primary" href="/contact/">Get early access</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <!-- Three marks, and only three: the frameworks named in the compatibility
+           tile below. Same sheet the home page carries, cut to what this page
+           actually draws — regenerate with `node tools/logos.mjs`. Inline
+           because the CSP allows no external image and a cross-document <use>
+           is blocked by the browser regardless. -->
+      <svg class="u-sprite" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="p-langchain" viewBox="0 0 24 24" fill-rule="evenodd"><path d="M7.531 15.976a7.534 7.534 0 000-10.651L2.206 0A7.537 7.537 0 000 5.326c0 1.996.794 3.913 2.206 5.325l5.325 5.325zM18.674 16.469a7.535 7.535 0 00-10.65 0l5.325 5.325a7.536 7.536 0 0010.651 0l-5.326-5.325zM2.218 21.782a7.536 7.536 0 005.326 2.206v-7.531H.012c0 1.996.795 3.914 2.206 5.325zM20.73 8.595a7.534 7.534 0 00-10.651.001l5.325 5.326 5.326-5.327z"></path></symbol>
+            <symbol id="p-llamaindex" viewBox="0 0 24 24" fill-rule="evenodd"><path d="M15.855 17.122c-2.092.924-4.358.545-5.23.24 0 .21-.01.857-.048 1.78-.038.924-.332 1.507-.475 1.684.016.577.029 1.837-.047 2.26a1.93 1.93 0 01-.476.914H8.295c.114-.577.555-.946.761-1.058.114-1.193-.11-2.229-.238-2.597-.126.449-.437 1.49-.665 2.068a6.418 6.418 0 01-.713 1.299h-.951c-.048-.578.27-.77.475-.77.095-.177.323-.731.476-1.54.152-.807-.064-2.324-.19-2.981v-2.068c-1.522-.818-2.092-1.636-2.473-2.55-.304-.73-.222-1.843-.142-2.308-.096-.176-.373-.625-.476-1.25-.142-.866-.063-1.491 0-1.828-.095-.096-.285-.587-.285-1.78 0-1.192.349-1.811.523-1.972v-.529c-.666-.048-1.331-.336-1.712-.721-.38-.385-.095-.962.143-1.154.238-.193.475-.049.808-.145.333-.096.618-.192.76-.48C4.512 1.403 4.287.448 4.16 0c.57.077.935.577 1.046.818V0c.713.337 1.997 1.154 2.425 2.934.342 1.424.586 4.409.665 5.723 1.823.016 4.137-.26 6.229.193 1.901.412 2.757 1.25 3.755 1.25.999 0 1.57-.577 2.282-.096.714.481 1.094 1.828.999 2.838-.076.808-.697 1.074-.998 1.106-.38 1.27 0 2.485.237 2.934v1.827c.111.16.333.655.333 1.347 0 .693-.222 1.154-.333 1.299.19 1.077-.08 2.18-.238 2.597h-1.283c.152-.385.412-.481.523-.481.228-1.193.063-2.293-.048-2.693-.722-.424-1.188-1.17-1.331-1.491.016.272-.029 1.029-.333 1.875-.304.847-.76 1.347-.95 1.491v1.01h-1.284c0-.615.348-.737.523-.721.222-.4.76-1.01.76-2.212 0-1.015-.713-1.492-1.236-2.405-.248-.434-.127-.978-.047-1.203z"></path></symbol>
+            <symbol id="p-vercel" viewBox="0 0 24 24" fill-rule="evenodd"><path d="M12 0l12 20.785H0L12 0z"></path></symbol>
+        </defs>
+      </svg>
+
+      <section class="page-head">
+        <canvas
+          class="hero__field hero__field--back"
+          data-particles="back"
+          data-particle-texts="ROUTE | 4500+"
+          aria-hidden="true"
+        ></canvas>
+        <div class="container">
+          <span class="eyebrow" data-reveal>Platform</span>
+          <h1 class="page-head__title" data-split-lines>Routing is a decision, not a config file.</h1>
+          <p class="page-head__lede" data-reveal data-reveal-stagger="300">
+            Most gateways move bytes and hand you a dashboard. Alphe reads the request, prices the
+            options, picks one, checks the answer, and writes down why, on every call, in under ten
+            milliseconds of added latency.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">01: Classification</span>
+              <h2 class="feature__title">Every request is scored before it is spent</h2>
+              <p class="feature__body">
+                A small resident classifier reads task type, required reasoning depth, context
+                length, tool surface and output contract. This is the only place Alphe adds
+                meaningful latency, and it is the reason every downstream decision is cheap.
+              </p>
+              <ul class="feature__list">
+                <li>Runs on-path, in-region, on the same hop as the proxy</li>
+                <li>~4 ms added, below the noise floor of any provider call</li>
+                <li>Scores are attached to the trace, so a bad route is explainable after the fact</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">decision.json</span>
+                </div>
+                <pre class="code__body">{
+  <span class="tok-var">"task"</span>: <span class="tok-str">"extraction"</span>,
+  <span class="tok-var">"reasoning_depth"</span>: <span class="tok-num">0.18</span>,
+  <span class="tok-var">"context_tokens"</span>: <span class="tok-num">2841</span>,
+  <span class="tok-var">"quality_bar"</span>: <span class="tok-num">0.92</span>,
+  <span class="tok-var">"chosen"</span>: <span class="tok-str">"llama-3.3-70b"</span>,
+  <span class="tok-var">"rejected"</span>: [<span class="tok-str">"gpt-4o"</span>, <span class="tok-str">"claude-sonnet-4"</span>],
+  <span class="tok-var">"reason"</span>: <span class="tok-str">"clears bar at 1/19th cost"</span>,
+  <span class="tok-var">"saved_usd"</span>: <span class="tok-num">0.0412</span>
+}</pre>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">02: Routing</span>
+              <h2 class="feature__title">The cheapest model that clears your bar</h2>
+              <p class="feature__body">
+                Not the cheapest model. The cheapest one that still passes. You set the bar per
+                endpoint. A support summariser and a contract analyser should not share a quality
+                threshold, and on Alphe they do not.
+              </p>
+              <ul class="feature__list">
+                <li>Live token pricing per provider, refreshed continuously</li>
+                <li>Measured quality per task class, not a single leaderboard number</li>
+                <li>Latency-aware: a degrading endpoint loses traffic before it starts timing out</li>
+                <li>Deterministic mode when you need the same model every time for reproducibility</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">policy.yaml</span>
+                </div>
+                <pre class="code__body"><span class="tok-var">endpoint</span>: <span class="tok-str">support-summary</span>
+<span class="tok-var">quality_bar</span>: <span class="tok-num">0.88</span>
+<span class="tok-var">max_latency_ms</span>: <span class="tok-num">1800</span>
+<span class="tok-var">region</span>: <span class="tok-str">eu-west</span>
+<span class="tok-var">fallback</span>:
+  - <span class="tok-str">claude-haiku-4.5</span>
+  - <span class="tok-str">gpt-4o-mini</span>
+<span class="tok-var">cache</span>:
+  <span class="tok-var">semantic</span>: <span class="tok-key">true</span>
+  <span class="tok-var">threshold</span>: <span class="tok-num">0.94</span></pre>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">03: Verification</span>
+              <h2 class="feature__title">Cheap answers are checked, not assumed</h2>
+              <p class="feature__body">
+                A router that only optimises cost eventually ships a wrong answer to save four
+                cents. Alphe scores outputs against your rubric and escalates the misses to a
+                stronger model automatically, and the routing table learns, so the same class of
+                request does not miss twice.
+              </p>
+              <ul class="feature__list">
+                <li>Rubrics defined per endpoint, in plain language or as a schema</li>
+                <li>Escalation is automatic and logged, not a manual retry in your code</li>
+                <li>Quality regressions raise an alert before they reach a customer</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">verify.log</span>
+                </div>
+                <pre class="code__body"><span class="tok-com">14:02:11</span>  pass   llama-3.3-70b   0.94  $0.0002
+<span class="tok-com">14:02:11</span>  pass   llama-3.3-70b   0.91  $0.0002
+<span class="tok-com">14:02:12</span>  <span class="tok-str">miss</span>   llama-3.3-70b   0.71  $0.0002
+<span class="tok-com">14:02:12</span>  <span class="tok-key">esc</span>    claude-sonnet-4 0.96  $0.0038
+<span class="tok-com">14:02:13</span>  pass   llama-3.3-70b   0.93  $0.0002
+<span class="tok-com">14:02:13</span>  <span class="tok-fn">learn</span>  bar +0.03 for class:legal-cite</pre>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">04: Caching</span>
+              <h2 class="feature__title">Stop paying twice for the same question</h2>
+              <p class="feature__body">
+                Exact-match caching catches almost nothing in production. Real users never phrase
+                it identically. Semantic caching matches on meaning above a threshold you control,
+                and on repetitive workloads it removes 30–50% of billable calls outright.
+              </p>
+              <ul class="feature__list">
+                <li>Per-endpoint similarity threshold, so precision-critical paths can opt out</li>
+                <li>Tenant-scoped by default: one customer's answer never serves another's</li>
+                <li>Prompt compression trims context that never influenced the answer</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">cache.stats</span>
+                </div>
+                <pre class="code__body"><span class="tok-com">// rolling 24h, one production tenant</span>
+<span class="tok-var">requests</span>        <span class="tok-num">1,412,908</span>
+<span class="tok-var">semantic_hits</span>     <span class="tok-num">482,004</span>  <span class="tok-com">(34.1%)</span>
+<span class="tok-var">exact_hits</span>         <span class="tok-num">61,220</span>  <span class="tok-com">(4.3%)</span>
+<span class="tok-var">tokens_avoided</span>  <span class="tok-num">2.9B</span>
+<span class="tok-var">usd_avoided</span>       <span class="tok-num">18,441</span></pre>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">05: Observability</span>
+              <h2 class="feature__title">Cost attributed to a feature, not a bill</h2>
+              <p class="feature__body">
+                "Inference: $41,208" is not an answer. Alphe attributes every call to a team, a
+                feature and a customer as a property of the request path, so unit economics exist
+                without anyone instrumenting them later.
+              </p>
+              <ul class="feature__list">
+                <li>Per-request cost, latency, model, decision and escalation in one trace</li>
+                <li>Budgets and alerts at team level, enforced at the gateway</li>
+                <li>OpenTelemetry export into whatever you already run</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">spend.by-feature</span>
+                </div>
+                <pre class="code__body"><span class="tok-var">onboarding-agent</span>     <span class="tok-num">$4,120</span>  <span class="tok-com">▇▇▇▇▇▇▇▇</span>
+<span class="tok-var">support-summary</span>      <span class="tok-num">$2,884</span>  <span class="tok-com">▇▇▇▇▇</span>
+<span class="tok-var">search-rerank</span>        <span class="tok-num">$1,902</span>  <span class="tok-com">▇▇▇</span>
+<span class="tok-var">doc-extraction</span>         <span class="tok-num">$744</span>  <span class="tok-com">▇</span>
+<span class="tok-var">internal-evals</span>          <span class="tok-num">$318</span>  <span class="tok-com">▏</span></pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Compatibility</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              It has to fit what you already built.
+            </h2>
+          </div>
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">SDKs</span>
+              <h3 class="tile__title">Your client, unchanged</h3>
+              <p class="tile__body">
+                OpenAI and Anthropic SDKs work by changing the base URL. Streaming, tool calls,
+                structured output and vision all pass through.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Frameworks</span>
+              <h3 class="tile__title">
+                <span class="tile__brand"
+                  ><svg class="tile__mark" aria-hidden="true"><use href="#p-langchain" /></svg
+                  >LangChain,</span
+                >
+                <span class="tile__brand"
+                  ><svg class="tile__mark" aria-hidden="true"><use href="#p-llamaindex" /></svg
+                  >LlamaIndex,</span
+                >
+                <span class="tile__brand"
+                  ><svg class="tile__mark" aria-hidden="true"><use href="#p-vercel" /></svg
+                  >Vercel AI SDK</span
+                >
+              </h3>
+              <p class="tile__body">
+                Anything that accepts a custom base URL is already compatible. No adapter, no fork,
+                no wrapper package to keep in sync.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Keys</span>
+              <h3 class="tile__title">Bring your own, or use ours</h3>
+              <p class="tile__body">
+                Route through your existing provider contracts to keep your committed-spend
+                discounts, or take <a class="link" href="/pricing/">a single Alphe invoice</a>. Both, per tenant, is fine.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Deployment</span>
+              <h3 class="tile__title">Cloud, VPC or self-hosted</h3>
+              <p class="tile__body">
+                The proxy is a single binary. Run it in your own VPC when prompts cannot leave your
+                network and keep the control plane hosted.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Failover</span>
+              <h3 class="tile__title">Provider outages stop being your outage</h3>
+              <p class="tile__body">
+                When a provider degrades, traffic moves to the next candidate that clears the bar.
+                Your error rate does not move with theirs.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Migration</span>
+              <h3 class="tile__title">Shadow mode first</h3>
+              <p class="tile__body">
+                <a class="link" href="/contact/">Mirror production traffic</a>, compare Alphe's choice against your current model, and
+                read the delta before a single user request changes path.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section cta">
+        <canvas
+          class="cta__canvas"
+          data-particles="front"
+          data-particle-avoid="1"
+          data-particle-mode="attract"
+          data-particle-cycle="off"
+          aria-hidden="true"
+        ></canvas>
+        <div class="container container-narrow">
+          <h2 class="cta__title" data-avoid data-reveal>Run it in shadow mode for a week.</h2>
+          <p class="section-lede" style="text-align: left" data-reveal data-reveal-stagger="90">
+            No path change, no risk. Mirror your traffic and read what routing would have cost.
+          </p>
+          <form class="form" action="/contact.php" method="post" data-avoid data-form novalidate data-reveal data-reveal-stagger="160">
+            <!-- Not a field. Clipped out of the layout, hidden from assistive tech,
+                 readonly so no autofill can reach it, and named nothing any autofill
+                 looks for: only something filling in every input it can parse writes
+                 here. contact.php has the rest of why the name matters. -->
+            <input class="form__trap" type="text" name="alphe_ref" tabindex="-1" autocomplete="off" aria-hidden="true" readonly />
+            <input type="hidden" name="source" value="/platform/" />
+            <input
+              class="form__input"
+              type="email"
+              name="email"
+              aria-label="Work email"
+              autocomplete="email"
+              placeholder="you@company.com"
+              required
+            />
+            <button class="btn btn--primary" type="submit">
+              Get early access <span class="btn__arrow">→</span>
+            </button>
+            <p class="form__status" role="status"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__grid">
+          <div class="footer__col">
+            <a class="nav__brand" href="/" style="margin-bottom: 16px">
+              <img class="nav__mark" src="/media/logo.png" alt="" width="22" height="22" />
+              <span class="nav__wordmark">Alphe</span>
+            </a>
+            <p class="text-muted" style="max-width: 34ch">
+              The decision layer between your application and every model worth calling.
+            </p>
+          </div>
+          <div class="footer__col">
+            <h3>Product</h3>
+            <ul>
+              <li><a href="/platform/">Platform</a></li>
+              <li><a href="/pricing/">Pricing</a></li>
+              <li><a href="/docs/">Docs</a></li>
+              <li><a href="/#coverage">Model coverage</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h3>Company</h3>
+            <ul>
+              <li><a href="/about/">About</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li><a href="/about/#team">Team</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h3>Elsewhere</h3>
+            <ul>
+              <li><a href="https://github.com/bruzethegreat" target="_blank" rel="noopener">GitHub</a></li>
+              <li>
+                <a href="https://www.linkedin.com/in/verma-kumar-ankit" target="_blank" rel="noopener"
+                  >LinkedIn</a
+                >
+              </li>
+              <li><a href="mailto:ankit@ordisai.in">Email</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <span class="mono text-dim">© 2026 Alphe AI · All rights reserved</span>
+          <span class="mono text-dim">Built in India</span>
+        </div>
+      </div>
+
+      <!-- Closing mark. Outside the container on purpose: it is sized in vw so
+           it can reach the viewport edges, which it cannot do from inside a
+           max-width box. The wordmark is decorative — the accessible name for
+           the link lives on the badge. -->
+      <div class="footer__mark" data-footer-mark data-reveal>
+        <span class="footer__word" aria-hidden="true">ALPHE</span>
+        <a class="footer__badge" href="/" aria-label="Alphe AI home">
+          <svg class="footer__glyph" viewBox="0 0 91.08 100" aria-hidden="true" focusable="false">
+            <path
+              class="footer__glyph-path"
+              pathLength="1"
+              d="M1.82 0L20.27 0L21.42 1.58L22.75 3.76L24.82 6.49L26.52 9.1L29.67 13.29L35.01 21.18L37.99 25.18L43.57 33.37L50.67 43.26L52.67 46.36L57.71 53.28L58.43 52.85L60.62 51.03L63.35 48.54L65.9 45.93L67.9 43.57L70.33 40.23L72.03 37.44L73.3 34.83L74.33 32.16L75.24 28.52L75.67 25.06L75.73 0L91.02 0L91.08 23.36L90.96 26.52L90.23 31.86L89.56 34.65L88.29 38.65L86.77 42.23L84.89 45.93L82.89 49.15L79.98 53.09L75.85 57.83L72.75 60.92L68.75 64.38L66.63 66.02L67.05 66.81L69.36 69.9L72.63 74.82L80.46 85.74L81.49 87.44L84.83 92.05L85.38 93.02L88.83 97.82L90.23 100L71.84 100L65.9 91.38L63.17 87.68L60.56 83.74L58.43 80.95L56.55 78.09L53.22 73.54L51.64 71.06L47.63 65.59L40.29 54.92L33.5 45.45L32.58 45.93L28.22 49.76L25.24 52.73L22.75 55.58L20.75 58.37L18.99 61.35L17.29 64.99L16.63 66.93L15.78 70.33L15.41 73.54L15.41 99.94L0 99.94L0.06 73.36L0.36 69.9L0.79 67.23L1.58 63.83L2.73 60.19L4.25 56.49L6.19 52.67L8.74 48.67L11.1 45.51L13.23 42.96L16.2 39.81L20.45 35.92L24.45 32.71L24.39 32.34L16.57 21.42L16.02 20.45L13.11 16.44L9.83 11.53L7.83 8.92L6.31 6.55L3.82 3.16Z"
+            />
+          </svg>
+        </a>
+        <span class="footer__word" aria-hidden="true">AI</span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+# How to report a security problem with alpheai.com or the Alphe API.
+# Format is RFC 9116. Contact first, before disclosing anywhere else — the
+# inbox is read by the two people who wrote the thing you are reporting.
+
+Contact: mailto:hello@alpheai.com
+Contact: https://alpheai.com/contact/
+Expires: 2027-08-22T23:59:59Z
+Preferred-Languages: en
+Canonical: https://alpheai.com/.well-known/security.txt

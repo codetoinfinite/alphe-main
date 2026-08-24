@@ -1,0 +1,5638 @@
+/* Hero --------------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 66px;
+  isolation: isolate;
+}
+
+/* Two canvases with opposite depth signs. Half the particle field renders
+   behind the headline, half in front — so the text sits *inside* the field
+   rather than on top of a backdrop. */
+.hero__field {
+  position: absolute;
+  inset: 0;
+  /* canvas is a replaced element: inset:0 alone leaves it at its intrinsic
+     300x150, so the size has to be stated explicitly. */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.hero__field--front {
+  z-index: 2;
+}
+
+/* The page-long field. Fixed rather than tall: one viewport of canvas, one
+   viewport of particles, and the page scrolls past it.
+   z-index 0 and first in the document, so every positioned section — all of
+   which are z-index:auto — paints over it in document order without any of them
+   needing to opt in. */
+.field-scroll {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding-block: 90px 60px;
+}
+
+.hero__title {
+  font-size: var(--text-7xl);
+  line-height: 1.03;
+  max-width: 16ch;
+  margin-inline: auto;
+}
+
+.hero__sub {
+  margin: 26px auto 0;
+  max-width: 58ch;
+  font-size: var(--text-md);
+  color: var(--fg-muted);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 38px;
+}
+
+.hero__note {
+  margin-top: 22px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.hero__strip {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding-block: 30px 34px;
+  border-top: 1px solid var(--border-faint);
+}
+
+.hero__strip-label {
+  display: block;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 20px;
+}
+
+/* Refraction --------------------------------------------------------------- */
+/* The scoresheet: the request at the top, the glass, and the routes it came
+   apart into with a price and a verdict against each one.
+
+   Above 1100 the sheet is capped short of the container so the right-hand third
+   of the section is empty on purpose — that is the column the particle prism is
+   placed in, and it is the same diagram this panel spells out in words. Below
+   1100 the field stops placing shapes at all (see particle-field.js), so the
+   cap comes off and the sheet takes the full column. */
+
+.refract {
+  overflow: hidden;
+}
+
+/* Two steps, not one. The prism is placed as a fraction of the frame, so it
+   slides left as the window narrows while the container is still at full width
+   — between 1100 and 1280 the cloud would land on the sheet. The cap comes in
+   ahead of it. */
+@media (min-width: 1100px) {
+  .refract .section-head,
+  .refract .score {
+    max-width: 620px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .refract .section-head,
+  .refract .score {
+    max-width: 690px;
+  }
+}
+
+.score {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.score__in {
+  padding: 20px 22px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.score__tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.score__prompt {
+  margin-top: 11px;
+  font-size: var(--text-md);
+  color: var(--fg);
+  max-width: 52ch;
+}
+
+/* The glass. Same triangle the particle prism draws, at the size a row of type
+   allows — it is the join between the picture on the right and the list below
+   it, so it has to be recognisably the same object. */
+.score__split {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 22px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.score__glass {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 16px solid rgba(81, 162, 255, 0.34);
+  filter: drop-shadow(0 0 7px rgba(81, 162, 255, 0.3));
+  animation: score-glass 3.6s var(--ease-in-out) infinite;
+}
+
+@keyframes score-glass {
+  0%,
+  100% {
+    border-bottom-color: rgba(81, 162, 255, 0.34);
+    filter: drop-shadow(0 0 7px rgba(81, 162, 255, 0.3));
+  }
+  40% {
+    border-bottom-color: rgba(81, 162, 255, 0.8);
+    filter: drop-shadow(0 0 12px rgba(81, 162, 255, 0.6));
+  }
+}
+
+.score__tag--wide {
+  max-width: 46ch;
+  line-height: 1.55;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.score__routes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* The rail is assembled out of the rows rather than drawn over them: each row
+   owns the segment of line that crosses it and the stub that leaves it, so the
+   branch marks stay welded to their rows however the notes wrap, and the last
+   row ends the line at its own stub instead of at a guessed offset. */
+.score__route {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 6px 16px;
+  padding: 15px 22px 16px 50px;
+  border-bottom: 1px solid var(--border-faint);
+}
+
+.score__route:last-child {
+  border-bottom: 0;
+}
+
+.score__route::before {
+  content: '';
+  position: absolute;
+  left: 31px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.score__route:last-child::before {
+  bottom: auto;
+  height: 25px;
+}
+
+.score__route::after {
+  content: '';
+  position: absolute;
+  left: 31px;
+  top: 25px;
+  width: 12px;
+  height: 1px;
+  background: var(--border-strong);
+}
+
+.score__name {
+  font-size: var(--text-base);
+  color: var(--fg-muted);
+}
+
+/* The lab that made the model, ahead of its name. Four rows of the same shape
+   scan as one block of type; four different marks down the left of them are
+   what makes it read as four candidates being weighed. Inline rather than a
+   grid column, so a long name still wraps under itself. */
+.score__mark {
+  /* The reset makes every svg a block; this one has to sit in the line. */
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  margin-right: 8px;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  opacity: 0.85;
+}
+
+.score__name i {
+  font-style: normal;
+  color: var(--fg-faint);
+  padding: 0 5px;
+}
+
+.score__name b {
+  font-weight: 500;
+  color: var(--fg-muted);
+}
+
+.score__cost {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-dim);
+  text-align: right;
+}
+
+.score__note {
+  font-size: var(--text-sm);
+  color: var(--fg-dim);
+  max-width: 48ch;
+}
+
+/* The one that gets called. Lit from the rail outwards, so the eye lands on the
+   branch mark and then on the price — which is the order the argument is in. */
+.score__route.is-sent {
+  background: linear-gradient(90deg, rgba(81, 162, 255, 0.11), rgba(81, 162, 255, 0) 64%);
+}
+
+.score__route.is-sent::before,
+.score__route.is-sent::after {
+  background: var(--brand);
+}
+
+.score__route.is-sent .score__name,
+.score__route.is-sent .score__name b {
+  color: var(--fg);
+}
+
+.score__route.is-sent .score__cost {
+  color: var(--brand);
+}
+
+.score__route.is-sent .score__note {
+  color: var(--fg-muted);
+}
+
+.score__flag {
+  justify-self: end;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--brand);
+  border: 1px solid rgba(81, 162, 255, 0.42);
+  border-radius: var(--radius);
+  padding: 4px 9px 3px;
+  line-height: 1;
+  animation: score-flag 3.6s var(--ease-in-out) infinite;
+}
+
+/* A colour pulse, not a mask: the word stays fully opaque at every frame. */
+@keyframes score-flag {
+  0%,
+  100% {
+    border-color: rgba(81, 162, 255, 0.42);
+    box-shadow: 0 0 0 rgba(81, 162, 255, 0);
+  }
+  40% {
+    border-color: rgba(81, 162, 255, 0.9);
+    box-shadow: 0 0 14px rgba(81, 162, 255, 0.25);
+  }
+}
+
+.score__foot {
+  padding: 14px 22px 15px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-raised);
+  font-size: var(--text-sm);
+  color: var(--fg-dim);
+}
+
+.score__ms {
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-mono);
+  color: var(--brand);
+}
+
+html.reduced-motion .score__glass,
+html.reduced-motion .score__flag {
+  animation: none;
+}
+
+@media (max-width: 620px) {
+  .score__in,
+  .score__split,
+  .score__foot {
+    padding-inline: 17px;
+  }
+
+  .score__route {
+    padding: 14px 17px 15px 40px;
+  }
+
+  .score__route::before,
+  .score__route::after {
+    left: 22px;
+  }
+
+  /* At this width the price on its own line beside a two-line name leaves a
+     ragged column of numbers against nothing. It reads as part of the route. */
+  .score__route {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .score__cost {
+    text-align: left;
+    order: 3;
+  }
+
+  .score__note {
+    order: 2;
+  }
+
+  .score__flag {
+    order: 4;
+    justify-self: start;
+  }
+}
+
+/* Lifecycle (sticky card stack) -------------------------------------------- */
+/* Five cards, one column, every one of them sticky at the same offset with a
+   higher z-index than the card before it. The arriving card slides up over the
+   parked one and the deck stacks itself. Nothing here is driven by script and
+   nothing hijacks the scroll: the browser does the whole effect, so it stays
+   exact under a trackpad fling, a scrollbar drag, a keyboard PageDown and a
+   jump from the index on the left alike.
+   Everything in this section is square. That is the point of it. */
+
+.stack {
+  position: relative;
+}
+
+.stack__layout {
+  display: grid;
+  grid-template-columns: 226px minmax(0, 1fr);
+  gap: 30px;
+}
+
+/* The rail column is left to stretch to the row height so its inner block has
+   somewhere to travel — a grid item sized to its own content has no room to
+   stick inside. Hence the wrapper. */
+.stack__rail-inner {
+  position: sticky;
+  top: 90px;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.rail {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--border-faint);
+  border-left: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out);
+}
+
+.rail:last-child {
+  border-bottom: 0;
+}
+
+.rail:hover {
+  color: var(--fg-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rail.is-on {
+  color: var(--fg);
+  border-left-color: var(--brand);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.rail__n {
+  color: var(--fg-dim);
+  transition: color 0.3s var(--ease-out);
+}
+
+.rail.is-on .rail__n {
+  color: var(--brand);
+}
+
+.stack__cards {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zero-height, out of the flow of nothing: a sticky box reports where it is
+   parked, not where it belongs, so the index needs a sibling that stays put to
+   read each card's real position from. */
+.stack__mark {
+  height: 0;
+  pointer-events: none;
+}
+
+.stack__slot {
+  position: sticky;
+  top: 90px;
+  margin-bottom: 72px;
+}
+
+/* A sticky box is bounded by its container's content box, so padding on the
+   column would not buy the last card any time parked. This does. */
+.stack__tail {
+  height: min(34vh, 300px);
+  flex: none;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  min-height: 400px;
+}
+
+.card__figure {
+  display: flex;
+  align-items: center;
+  padding: 26px;
+  border-right: 1px solid var(--border);
+  /* graph paper, faintly lit from the top left */
+  background:
+    radial-gradient(120% 90% at 12% 0%, var(--brand-dim), transparent 62%),
+    repeating-linear-gradient(90deg, var(--border-faint) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, var(--border-faint) 0 1px, transparent 1px 34px), #0a0c0e;
+}
+
+.card__figure > * {
+  width: 100%;
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 30px 32px;
+}
+
+.card__n {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  line-height: 1;
+  color: var(--brand);
+  border: 1px solid var(--brand-dim);
+  background: var(--brand-dim);
+  padding: 5px 8px 4px;
+}
+
+.card__title {
+  font-size: var(--text-2xl);
+}
+
+.card__lede {
+  color: var(--fg-muted);
+  font-size: var(--text-base);
+}
+
+/* Every list in this section is a table of some sort, none of them want a
+   marker or the browser's list indent. */
+.card__points,
+.meter,
+.rt,
+.chk,
+.kv {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* One continuous track down the left with a brighter mark against each line —
+   the marks paint over the track, which is why they are lifted a layer. */
+.card__points {
+  position: relative;
+  margin-top: auto;
+  padding-left: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.card__points::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.card__point {
+  position: relative;
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.card__point::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 5px;
+  z-index: 1;
+  width: 3px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+/* Ruled strip under each card. It carries the card's bottom border, so the
+   card itself does without one. */
+.card__strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.card__strip i {
+  border-right: 1px solid var(--border);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.07) 0 1px,
+    transparent 1px 5px
+  );
+}
+
+.card__strip i:last-child {
+  border-right: 0;
+}
+
+/* Figures ------------------------------------------------------------------ */
+/* Every one of them is static. Nothing in this section is on a clock. */
+
+.stack .code {
+  border-radius: 0;
+}
+
+.fig {
+  border: 1px solid var(--border);
+  background: #0a0c0e;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+}
+
+.fig__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+}
+
+.fig__name {
+  color: var(--fg-muted);
+}
+
+.fig__meta {
+  color: var(--fg-dim);
+}
+
+.fig__meta--ok {
+  color: var(--good);
+}
+
+.fig__foot {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+  font-size: var(--text-xs);
+}
+
+.fig__foot--ok {
+  color: var(--good);
+}
+
+/* 02 — classifier signals */
+.meter {
+  display: grid;
+  gap: 10px;
+  padding: 14px 12px;
+}
+
+.meter__row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg-dim);
+}
+
+.meter__cells {
+  display: flex;
+  gap: 3px;
+}
+
+.meter__cells i {
+  flex: 1;
+  height: 8px;
+  border: 1px solid var(--border-strong);
+}
+
+.meter__cells i.is-on {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.meter__val {
+  color: var(--fg-muted);
+  text-align: right;
+}
+
+/* 03 — routing table */
+.rt__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) 52px;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-faint);
+  color: var(--fg-dim);
+}
+
+.rt__row > span:last-child {
+  text-align: right;
+}
+
+/* The score column is four characters wide whatever the screen, so on the
+   narrowest phones it stops being reserved at 52 and gives the width back to
+   the two that hold words — "hard reasoning" was losing its last letters.
+   "embeddings" is one word and cannot wrap, so at 320 the class column has to
+   hold ten mono characters outright — 76px at 13 and 70 at 11, in a cell of 72.
+   11px is the size the code panels already drop to on a phone. */
+@media (max-width: 360px) {
+  .rt__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) 44px;
+    gap: 8px;
+    padding-inline: 10px;
+    font-size: 11px;
+  }
+}
+
+.rt__row:last-child {
+  border-bottom: 0;
+}
+
+.rt__row--head {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rt__row--won {
+  background: var(--brand-dim);
+  box-shadow: inset 2px 0 0 var(--brand);
+  color: var(--fg);
+}
+
+.rt__row--won > span:nth-child(2) {
+  color: var(--brand);
+}
+
+/* 04 — rubric and escalation */
+.chk__row {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-faint);
+  color: var(--fg-muted);
+}
+
+.chk__mark {
+  color: var(--good);
+}
+
+.chk__row--bad {
+  color: var(--fg-dim);
+}
+
+.chk__row--bad .chk__mark {
+  color: var(--warn);
+}
+
+.esc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.esc__from {
+  color: var(--fg-dim);
+}
+
+.esc__arrow {
+  color: var(--brand);
+}
+
+.esc__to {
+  color: var(--brand);
+  border: 1px solid var(--brand-dim);
+  background: var(--brand-dim);
+  padding: 3px 7px 2px;
+}
+
+/* 05 — the receipt */
+.kv__row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-faint);
+}
+
+.kv__row > span:first-child {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+}
+
+.kv__row > span:last-child {
+  color: var(--fg-muted);
+}
+
+/* The index turns into a strip above the deck once the column stops paying for
+   itself. The cards keep stacking — that part works at any width. */
+@media (max-width: 1040px) {
+  .stack__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .stack__rail-inner {
+    position: static;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .stack__rail-inner::-webkit-scrollbar {
+    display: none;
+  }
+  .rail {
+    width: auto;
+    flex: none;
+    border-bottom: 0;
+    border-left: 0;
+    border-top: 2px solid transparent;
+  }
+  .rail.is-on {
+    border-left-color: transparent;
+    border-top-color: var(--brand);
+  }
+}
+
+/* Below this the card is taller than the room above the fold, so a parked card
+   would have its own footer cut off. The deck flattens into a plain list. */
+@media (max-width: 860px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .card__figure {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 20px;
+  }
+  .card__body {
+    padding: 24px 20px;
+  }
+  .stack__slot {
+    position: static;
+    margin-bottom: 26px;
+  }
+  .stack__tail {
+    display: none;
+  }
+  .meter__row {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+  .meter__val {
+    grid-column: 2;
+    text-align: left;
+  }
+}
+
+/* On a phone the strip is wider than the screen — 525px of buttons in 348px —
+   so the last two stages are cut off with nothing to say the row scrolls. Five
+   equal cells with the number stacked over the name fits all five at once, and
+   since the deck below is a flat list at this width there is nothing the strip
+   can be scrolled out of sync with. */
+@media (max-width: 700px) {
+  .stack__rail-inner {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .rail {
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 4px;
+    /* Below ~330px the viewport, not the cell, is what runs out. */
+    font-size: clamp(8px, 2.5vw, 11px);
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+}
+
+/* Benchmarks --------------------------------------------------------------- */
+/* Square-cornered on purpose: this section quotes somebody else's measurements
+   and should read like a printed table, not like a card. */
+
+.bench {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.bench__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 26px;
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* A segmented control: cells butted together over a border-coloured gap, so
+   the 1px rules between them are the panel's own border showing through. */
+.bench__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.bench__tab {
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg-raised);
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  padding: 11px 15px;
+  cursor: pointer;
+  transition:
+    color 0.2s linear,
+    background 0.2s linear;
+}
+
+html.can-hover .bench__tab:hover {
+  color: var(--fg);
+  background: var(--card-hover);
+}
+
+.bench__tab.is-on {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.bench__caption {
+  flex: 1 1 320px;
+  max-width: 46ch;
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
+/* The isometric board.
+   ------------------------------------------------------------------------
+   Eight columns drawn in a 2:1 dimetric projection, which is three flat faces
+   per column and no 3D context anywhere: tan 26.565° is exactly 0.5, so the
+   two side faces are a skewY of that angle and the top is the matrix that
+   sends the unit square to the rhombus between them. Doing it this way keeps
+   every part of a column a plain box, which means every part of it can be
+   transitioned — an SVG polygon's points cannot.
+
+   One length carries the data: --k, the column's height as a fraction of the
+   plot, written into the markup by the generator and rewritten by script on a
+   re-sort. Nothing else about a column depends on its value.
+
+   The stage carries its own list reset — base.css deliberately leaves lists
+   alone — and the grid is the no-script layout. Script takes the items out of
+   flow to animate them; see the html.js block below. */
+.bench__stage {
+  --cols: 8;
+  --iso-row: 322px;
+  --iso-meta: 62px;
+  /* Headroom above the tallest column: it has to clear the top face's back
+     corner (--iso-wr / 2) plus the printed value. */
+  --iso-pad: 60px;
+  /* Face widths track the viewport so the columns keep their proportions
+     between breakpoints instead of stepping at them, and cap so a wide screen
+     gets more gap rather than fatter columns. */
+  --iso-wl: min(3.8vw, 54px);
+  --iso-wr: min(3.3vw, 46px);
+  --iso-h: calc(var(--iso-row) - var(--iso-meta) - var(--iso-pad) - var(--iso-wl) / 2);
+  /* Taken off the corners the silhouette owns outright. Bigger than the 2px the
+     rest of the site uses because these corners are seen at an angle, where the
+     same radius reads as less. */
+  --iso-r: 5px;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 20px 26px;
+  position: relative;
+}
+
+.ib {
+  --face-t: #3a4450;
+  --face-l: #272f39;
+  --face-r: #191e25;
+  /* Not an outline — the specular line along a rounded arris. Drawn once per
+     edge and kept dim, so the column reads as a solid with softened edges
+     rather than as a wireframe with fills poured into it. */
+  --face-e: rgba(255, 255, 255, 0.11);
+  /* What the column throws on the rule it stands on. Near-opaque because the
+     panel it falls on is already almost black — anything lighter is a shadow
+     nobody can see. */
+  --face-cast: rgba(0, 0, 0, 0.92);
+  height: var(--iso-row);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) var(--iso-meta);
+}
+
+/* Two columns are called out and the other six stay graphite: the best on the
+   metric being shown, and the worst. Which end is which flips with the metric —
+   cheapest wins on cost, biggest wins on the index — and the sort handles that,
+   so first is always good and last is always bad however the board is read. */
+.ib.is-lead {
+  --face-t: #7cb8ff;
+  --face-l: #4d9bf5;
+  --face-r: #2a5f9e;
+  --face-e: rgba(214, 233, 255, 0.5);
+  --face-cast: rgba(0, 10, 24, 0.94);
+}
+
+.ib.is-tail {
+  --face-t: #ffb08a;
+  --face-l: #f5844f;
+  --face-r: #9e4d2a;
+  --face-e: rgba(255, 220, 202, 0.45);
+  --face-cast: rgba(20, 6, 0, 0.94);
+}
+
+.ib__plot {
+  position: relative;
+  min-height: 0;
+}
+
+/* The patch the column puts on the rule it stands on. Sized to the footprint
+   and pushed a little right of it, the way the face shading is lit, so a short
+   column sits on the line as convincingly as a tall one. */
+.ib__plot::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - (var(--iso-wl) + var(--iso-wr)) / 2 - 5px);
+  bottom: -6px;
+  width: calc(var(--iso-wl) + var(--iso-wr) + 18px);
+  height: calc((var(--iso-wl) + var(--iso-wr)) / 2 + 12px);
+  background: radial-gradient(50% 50% at 50% 44%, var(--face-cast), rgba(0, 0, 0, 0) 66%);
+  opacity: calc(0.4 + 0.6 * var(--k, 0));
+  filter: blur(2.5px);
+  pointer-events: none;
+}
+
+/* The column stands on the rule under it: the box's bottom edge is the back
+   corner, so the front corner — half a face-width lower — lands on the line. */
+.ib__box {
+  position: absolute;
+  left: calc(50% - (var(--iso-wl) + var(--iso-wr)) / 2);
+  bottom: calc(var(--iso-wl) / 2);
+  width: var(--iso-wl);
+  height: calc(var(--iso-h) * var(--k, 0));
+  z-index: 1;
+}
+
+.ib__face {
+  position: absolute;
+  display: block;
+  transform-origin: 0 0;
+}
+
+/* Only the outer silhouette gets a drawn line. The two internal creases — the
+   near vertical edge and the joins under the top face — are left to the
+   shading, because a solid object shows those as a change in value, not as a
+   stroke, and stroking them is what made the column read as a wireframe.
+   Every corner the silhouette owns outright is rounded; the ones shared with
+   another face have to stay square, since rounding one side of a shared edge
+   pulls it off its neighbour and opens a notch.
+
+   Each face is lit from the upper front left: a highlight down from the top
+   edge, occlusion gathering at the foot, and a lengthways ramp that darkens
+   toward the near edge on the left face and lifts off it on the right. */
+.ib__face--left {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.16)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0) 46%, rgba(0, 0, 0, 0.3)),
+    var(--face-l);
+  border-left: 1px solid var(--face-e);
+  border-bottom: 1px solid var(--face-e);
+  border-radius: 0 0 0 var(--iso-r);
+  box-shadow: inset 0 1px 0 var(--face-e);
+  transform: skewY(26.565deg);
+}
+
+.ib__face--right {
+  left: 100%;
+  top: 0;
+  width: var(--iso-wr);
+  height: 100%;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.1) 55%, rgba(0, 0, 0, 0.2)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.34)),
+    var(--face-r);
+  border-right: 1px solid var(--face-e);
+  border-bottom: 1px solid var(--face-e);
+  border-radius: 0 0 var(--iso-r) 0;
+  box-shadow: inset 0 1px 0 var(--face-e);
+  transform: translateY(calc(var(--iso-wl) / 2)) skewY(-26.565deg);
+}
+
+/* Local down runs from the left corner toward the back one, so this ramp
+   brightens the near half of the cap and lets the far half fall away. */
+.ib__face--top {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: var(--iso-wr);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(0, 0, 0, 0.09)),
+    var(--face-t);
+  border-left: 1px solid var(--face-e);
+  border-bottom: 1px solid var(--face-e);
+  border-radius: 0 0 0 var(--iso-r);
+  transform: matrix(1, 0.5, 1, -0.5, 0, 0);
+}
+
+/* Centred over the top face, which sits half a depth above the box. */
+.ib__value {
+  position: absolute;
+  left: calc((var(--iso-wl) + var(--iso-wr)) / 2);
+  bottom: calc(100% + var(--iso-wr) / 2 + 8px);
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.ib.is-lead .ib__value {
+  color: var(--brand);
+}
+
+.ib.is-tail .ib__value {
+  color: var(--warn);
+}
+
+/* The rule under the labels is the ground the columns stand on. Items are the
+   full column pitch wide and butted together, so eight of them read as one
+   line across the panel. */
+.ib__meta {
+  display: block;
+  overflow: hidden;
+  padding-top: 11px;
+  border-top: 1px solid var(--border-faint);
+  text-align: center;
+}
+
+/* Two lines whether it needs them or not, so the maker under a name that wraps
+   still sits on the same baseline as the seven that do not. */
+.ib__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.5em;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--fg-muted);
+  transition: color 0.2s linear;
+}
+
+.ib__maker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.6875rem;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The lab's own mark, sized off the label rather than in pixels: the label
+   loses a size on a phone and the mark has to lose it too, or eight of them
+   stop fitting the column pitch. Monochrome marks paint the label's ink;
+   coloured ones carry their own and ignore it. */
+.ib__mark {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+  fill: currentColor;
+}
+
+.ib.is-lead .ib__name,
+.ib.is-tail .ib__name {
+  color: var(--fg);
+}
+
+html.can-hover .ib:hover .ib__box {
+  filter: brightness(1.2);
+}
+
+html.can-hover .ib:hover .ib__name {
+  color: var(--fg);
+}
+
+/* Ruled strip closing the panel, the same device the lifecycle cards use. */
+.bench__strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.bench__strip i {
+  border-right: 1px solid var(--border);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.07) 0 1px,
+    transparent 1px 5px
+  );
+}
+
+.bench__strip i:last-child {
+  border-right: 0;
+}
+
+.bench__src {
+  margin: 0;
+  padding: 14px 26px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--fg-dim);
+}
+
+.bench__src a {
+  color: var(--fg-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  /* 12px mono type gives a 16px-tall hit box, which is under the 24px a thumb
+     needs. Padding on an inline box grows the target without growing the line,
+     so the sentence it sits in does not move. */
+  padding-block: 4px;
+}
+
+html.can-hover .bench__src a:hover {
+  color: var(--brand);
+}
+
+/* Sorting.
+   A grid cell cannot be animated from one cell to another, so with script the
+   columns come out of the grid and are placed by a translate instead — that is
+   what makes a re-sort slide rather than snap. Taking them out of flow means
+   script also has to give the stage its height and the columns their width; see
+   initBenchmarks. All of it is gated on script for the same reason the reveals
+   are: with nothing to re-sort, the grid above is the better board, and eight
+   columns stacked on top of each other in a collapsed box is not a fallback. */
+html.js .bench__stage {
+  display: block;
+}
+
+html.js .ib {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--col-w, 0px);
+  transform: translate(var(--x, 0px), var(--y, 0px));
+}
+
+/* Columns grow out of the floor the first time the panel is on screen, so the
+   first thing it does once seen is build itself. */
+html.js .bench:not(.is-live) .ib__box {
+  height: 0;
+}
+
+/* Nothing is standing there yet, so nothing is casting. */
+html.js .bench:not(.is-live) .ib__plot::after {
+  opacity: 0;
+}
+
+/* Motion is switched on a frame after the columns have been placed. Until then
+   a slow module fetch could let first paint land with all eight stacked at the
+   left edge, and they would be watched sliding apart. --i staggers the cascade
+   along the finished order, so it reads as one wave rather than eight arrivals. */
+html.js .bench.is-ready .ib {
+  transition: transform 0.62s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 22ms);
+}
+
+html.js .bench.is-ready .ib__box {
+  transition: height 0.62s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 22ms);
+}
+
+html.js .bench.is-ready .ib__face {
+  transition:
+    background 0.4s linear,
+    border-color 0.4s linear,
+    box-shadow 0.4s linear;
+}
+
+/* --k is an unregistered custom property, so the opacity it feeds jumps rather
+   than interpolates; transitioning opacity puts the ramp back. */
+html.js .bench.is-ready .ib__plot::after {
+  transition: opacity 0.62s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 22ms);
+}
+
+html.reduced-motion .ib,
+html.reduced-motion .ib__box,
+html.reduced-motion .ib__face,
+html.reduced-motion .ib__plot::after,
+html.reduced-motion .ib__name,
+html.reduced-motion .bench__tab {
+  transition: none;
+}
+
+@media (max-width: 1000px) {
+  .bench__head,
+  .bench__stage,
+  .bench__src {
+    padding-inline: 20px;
+  }
+}
+
+/* Eight columns across a phone would be 40px of pitch each and the names under
+   them would be one word a line, so the board folds to two rows of four rather
+   than dropping models — the source line claims eight and has to keep meaning
+   it. Four columns over the full width of a tablet would be sparse instead, so
+   the stage stops widening at the point where the pitch it had at the fold is
+   the pitch it keeps. */
+@media (max-width: 880px) {
+  .bench__stage {
+    --cols: 4;
+    --iso-row: 292px;
+    --iso-pad: 62px;
+    --iso-wl: min(7.6vw, 54px);
+    --iso-wr: min(6.6vw, 46px);
+    max-width: 600px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  /* Wrapping a flex row leaves the last line short, and the gap between the
+     cells is the panel's border showing through — so a short line reads as a
+     pale block hanging off the end of the control. A grid fills its rows. */
+  .bench__tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+}
+
+/* Half of 440 is 220, and the longest label is 155 wide before its padding.
+   Below that the four of them stack instead. */
+@media (max-width: 520px) {
+  .bench__tabs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bench__tab {
+    padding: 12px 15px;
+  }
+  /* A quarter of a phone is 77px of pitch. The names still have to fit two
+     lines inside it, so they lose a size and the labels lose the room that
+     third line would have taken. */
+  .bench__stage {
+    --iso-row: 262px;
+    --iso-meta: 56px;
+    --iso-pad: 54px;
+    --iso-r: 4px;
+  }
+  .ib__name {
+    font-size: 0.6875rem;
+  }
+  .ib__maker {
+    font-size: 0.625rem;
+  }
+}
+
+/* A quarter of a 320 screen is 60px of pitch, and a mark, a gap and nine
+   tracked characters are 69 — five of the eight labels were being cut mid-word
+   by the meta box. The mark moves above the name rather than beside it, which
+   costs the meta row one line and the columns the height to pay for it, and
+   keeps every lab both named and marked. */
+@media (max-width: 380px) {
+  .bench__stage {
+    --iso-meta: 74px;
+    --iso-row: 304px;
+  }
+  .ib__maker {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+/* The accuracy-per-dollar board is the same component with five columns instead
+   of eight. Left at full width they would be 145px of pitch against the models
+   board's 142px, which is close enough that the two boards read as one chart —
+   the stage stops widening at 780 to hold that.
+
+   Specificity: this pair is (0,2,0) and the breakpoints above are (0,1,0), so a
+   plain override here would beat every one of them and leave five columns on a
+   phone. The fold below matches this rule's specificity and comes after it. */
+.bench--own .bench__stage {
+  --cols: 5;
+  max-width: 780px;
+  margin-inline: auto;
+}
+
+/* Five across a phone is 68px of pitch, under the 77 the models board already
+   needed two lines of name for. Three and two is the only fold that keeps the
+   pitch: four would leave one column alone on the second row with the whole
+   width of the board to itself. */
+@media (max-width: 880px) {
+  .bench--own .bench__stage {
+    --cols: 3;
+    max-width: 460px;
+  }
+}
+
+/* Comparison --------------------------------------------------------------- */
+/* A capability matrix against the three things people use instead. It is a real
+   <table>: the rows and columns mean what a table's rows and columns mean, and
+   the header cells carry scope, so the marks are read out with the capability
+   and the vendor rather than as a field of yesses.
+
+   Below its natural width it scrolls sideways rather than folding, with the
+   capability column pinned — a mark with nothing to its left is unreadable.
+   The panel keeps the site's corner radius; the board above it is deliberately
+   square because it quotes somebody else's measurements, and this one does
+   not. */
+
+.cmp {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.cmp__scroll {
+  overflow-x: auto;
+  /* Sideways only. Asking for overflow on one axis computes `auto` on the other,
+     and the sheen below travels a quarter of the table's height past its bottom
+     edge — which is scrollable overflow, so for a third of every sheen cycle this
+     box was a live vertical scroller ~200px deep. Scrolling it lifted the table
+     off the foot and left a gap under it. The band is already clipped here, so
+     naming the axis costs nothing and takes the scroller away. */
+  overflow-y: hidden;
+  /* A sideways flick inside the table should not walk the page back a step. */
+  overscroll-behavior-x: contain;
+}
+
+.cmp__table {
+  width: 100%;
+  /* The sticky column and the per-cell rules both need cells to keep their own
+     borders, which collapse would merge away. */
+  border-collapse: separate;
+  border-spacing: 0;
+  /* Fixed, so the columns are the widths declared on the header cells rather
+     than whatever the longest vendor name argues for. Auto layout lets a cell
+     push past the width it was given, and a header that overruns the panel edge
+     is the one thing this table cannot afford. */
+  table-layout: fixed;
+  /* Four columns and a label. Under this the vendor names stack to three lines
+     and the marks crowd; past it the scroller takes over. */
+  min-width: 780px;
+  text-align: left;
+  /* The containing block for the sheen below. It has to be the table and not
+     the panel: the panel is the width of the viewport's column, the table is
+     780px or wider and slides inside it, and the sheen is pinned to a column of
+     the table. Hung off the panel it would drift off the column the moment the
+     scroller moved. */
+  position: relative;
+}
+
+/* The sheen ------------------------------------------------------------------ */
+/* A band of light running down our column, once every few seconds. The tint
+   alone says which column is ours; this says the column is live.
+ *
+   One element rather than a background on each of the thirteen cells: a per-cell
+   sweep restarts at every row edge and reads as thirteen separate flickers, not
+   as one thing travelling the height of the column. Left and width are the
+   column geometry declared on the header cells — the label column is 30% and
+   each vendor 17.5%, and ours is the first vendor — which holds at every width
+   because the table's layout is fixed.
+ *
+   Above the cells and their text, deliberately: light falls on what is under it.
+   It stays under the two sticky columns, which carry higher z-indexes so that
+   the rows can scroll beneath them.
+ *
+   Transform only, so the whole thing is one composited layer and the table is
+   never re-laid-out or repainted for it. The band is 34% of the column's height
+   and travels from one edge clear to the other, which is 100/34 of itself
+   either side of the trip. */
+
+.cmp__table::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 30%;
+  width: 17.5%;
+  top: 0;
+  height: 26%;
+  pointer-events: none;
+  /* Blue coming in, cyan through the middle, blue going out — a strip with a
+     colour to it rather than one opacity ramped up and back down. The bright
+     core is two stops a point and a half apart, which is the difference between
+     light with an edge and a wash. */
+  background: linear-gradient(
+    180deg,
+    rgba(81, 162, 255, 0) 0%,
+    rgba(81, 162, 255, 0.11) 34%,
+    rgba(129, 205, 255, 0.24) 48.5%,
+    rgba(174, 222, 255, 0.3) 50%,
+    rgba(129, 205, 255, 0.24) 51.5%,
+    rgba(81, 162, 255, 0.11) 66%,
+    rgba(81, 162, 255, 0) 100%
+  );
+  animation: cmp-sheen 5.6s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+}
+
+@keyframes cmp-sheen {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(385%);
+  }
+}
+
+/* Never stops on its own, so it goes rather than slows. The column's tint is
+   what carries the meaning and that is untouched. */
+html.reduced-motion .cmp__table::after {
+  display: none;
+}
+
+/* Rules only. Padding is set per cell class, and a blanket reset here would
+   out-specify every one of them. */
+.cmp__table th,
+.cmp__table td {
+  border-bottom: 1px solid var(--border-faint);
+}
+
+.cmp__table tbody tr:last-child th,
+.cmp__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Header ------------------------------------------------------------------- */
+
+.cmp__corner,
+.cmp__vendor {
+  border-bottom: 1px solid var(--border);
+  vertical-align: bottom;
+  background: var(--bg-raised);
+}
+
+.cmp__corner {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  width: 30%;
+  padding: 20px 24px 16px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  /* The rule the pinned column casts over whatever scrolls under it. A border
+     would take part in the layout and push the marks off centre. */
+  box-shadow: inset -1px 0 0 var(--border);
+}
+
+.cmp__vendor {
+  width: 17.5%;
+  padding: 20px 14px 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.cmp__vendor-name {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--fg);
+}
+
+.cmp__vendor-eg {
+  /* Wraps to one example per line when the column is too narrow for both,
+     which is what the head does on a phone rather than shrinking the type. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px 12px;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--fg-dim);
+}
+
+.cmp__eg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.cmp__eg-mark {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+  fill: currentColor;
+}
+
+/* Ours --------------------------------------------------------------------- */
+/* The tint is painted as a background-image so a row hover can still set
+   background-color underneath it, and the side rules are inset shadows for the
+   same reason the pinned column's is: neither may change the box. */
+
+.cmp__vendor.is-us,
+.cmp__cell.is-us {
+  background-image: linear-gradient(rgba(81, 162, 255, 0.055), rgba(81, 162, 255, 0.055));
+  box-shadow:
+    inset 1px 0 0 rgba(81, 162, 255, 0.2),
+    inset -1px 0 0 rgba(81, 162, 255, 0.2);
+}
+
+.cmp__vendor.is-us {
+  background-image: linear-gradient(rgba(81, 162, 255, 0.1), rgba(81, 162, 255, 0.1));
+  box-shadow:
+    inset 1px 0 0 rgba(81, 162, 255, 0.2),
+    inset -1px 0 0 rgba(81, 162, 255, 0.2),
+    inset 0 2px 0 var(--brand);
+}
+
+.cmp__vendor.is-us .cmp__vendor-name {
+  color: var(--fg);
+}
+
+.cmp__best {
+  display: inline-block;
+  margin-bottom: 9px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #08131f;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+}
+
+/* Rows --------------------------------------------------------------------- */
+
+.cmp__row-head {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  /* Opaque on purpose: the cells scroll under this one. */
+  background-color: var(--card);
+  box-shadow: inset -1px 0 0 var(--border);
+  padding: 15px 24px;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--fg);
+}
+
+.cmp__note {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--fg-dim);
+}
+
+.cmp__cell {
+  background-color: var(--card);
+  padding: 15px 16px;
+  text-align: center;
+}
+
+html.can-hover .cmp__table tbody tr:hover .cmp__row-head,
+html.can-hover .cmp__table tbody tr:hover .cmp__cell {
+  background-color: var(--card-hover);
+}
+
+/* Marks -------------------------------------------------------------------- */
+/* Four states. The one in our column is filled so the eye can run down it
+   without reading; the rest are line work at three weights of attention. */
+
+.cmp__mark {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+/* The line marks carry the other three columns on their own — no disc behind
+   them, no label beside them — so they are drawn a size up from the tick in our
+   filled circle and a touch heavier. Under 20px at this stroke a cross and a
+   dash are two grey specks and the reader has to lean in to tell a "no" from a
+   "partly". */
+.cmp__mark svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cmp__mark--win {
+  background: var(--brand);
+  color: #08131f;
+  box-shadow: 0 0 0 4px rgba(81, 162, 255, 0.12);
+}
+
+/* Smaller than the line marks, because it is inside a disc: the disc is the
+   thing being read, and a tick that fills it edge to edge loses the shape. */
+.cmp__mark--win svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.8;
+}
+
+.cmp__mark--has {
+  color: var(--fg);
+}
+
+.cmp__mark--partial {
+  color: var(--warn);
+}
+
+/* A step up from --fg-faint: still the quietest of the four, but a "no" that
+   has to be hunted for is not a reading of the table, it is a guess. */
+.cmp__mark--miss {
+  color: var(--fg-dim);
+}
+
+/* Foot --------------------------------------------------------------------- */
+
+.cmp__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 26px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-raised);
+  font-size: var(--text-xs);
+  color: var(--fg-dim);
+}
+
+.cmp__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cmp__legend li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+}
+
+/* Legend keys are the marks at the size the words next to them are, so the
+   circle and its halo come off. */
+.cmp__legend .cmp__mark {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.cmp__legend .cmp__mark svg {
+  width: 13px;
+  height: 13px;
+}
+
+.cmp__legend .cmp__mark--win {
+  color: var(--brand);
+}
+
+.cmp__hint {
+  margin: 0;
+  max-width: 48ch;
+}
+
+/* Only earns its line once the table is wider than the panel. */
+.cmp__swipe {
+  display: none;
+  margin: 0;
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+@media (max-width: 1000px) {
+  .cmp__corner,
+  .cmp__row-head {
+    padding-inline: 20px;
+  }
+  .cmp__foot {
+    padding-inline: 20px;
+  }
+}
+
+/* Once the panel is narrower than the table the pinned column is most of what
+   is on screen at any moment, so it gives back the width it does not need. */
+@media (max-width: 800px) {
+  .cmp__table {
+    min-width: 680px;
+  }
+  .cmp__corner {
+    width: 34%;
+  }
+  .cmp__vendor {
+    width: 16.5%;
+  }
+  .cmp__corner,
+  .cmp__row-head {
+    padding-inline: 16px;
+  }
+}
+
+/* Below this the panel is narrower than the table on every phone, so the
+   sideways scroll is the layout rather than an edge case: the pinned column
+   sheds enough width for the next column to show, which is what tells you the
+   board carries on, and the foot says so in words as well. */
+@media (max-width: 720px) {
+  .cmp__table {
+    min-width: 620px;
+  }
+  .cmp__corner {
+    width: 30%;
+  }
+  .cmp__vendor {
+    width: 17.5%;
+  }
+  .cmp__swipe {
+    display: block;
+    order: -1;
+    flex-basis: 100%;
+  }
+}
+
+/* At 390 the 620px table put the pinned column, one vendor and 55px of the next
+   on screen — a half-cut column reads as clipping, not as a board that carries
+   on. Narrower again, so the third column is nearly whole and the row obviously
+   continues. The label column keeps enough for "Route across models" on one
+   line; it is the note under it that wraps, and it wrapped already. */
+@media (max-width: 560px) {
+  .cmp__table {
+    min-width: 560px;
+  }
+  .cmp__corner {
+    width: 27%;
+  }
+  .cmp__vendor {
+    width: 18.25%;
+    /* The examples are nowrap — they are product names — so the longest one
+       sets the floor: "OpenRouter" with its mark is 77px at 10px type, and at
+       14px of side padding the cell holds 74. The head is centred and the body
+       cells keep their own padding, so buying the 8px here costs no alignment. */
+    padding-inline: 10px;
+  }
+  .cmp__corner,
+  .cmp__row-head {
+    padding-inline: 13px;
+  }
+  /* 11px would put "OpenRouter" back at 84 and over again — the narrower column
+     has to be paid for in type as well as in padding. */
+  .cmp__vendor-eg {
+    font-size: 0.625rem;
+  }
+  .cmp__eg {
+    gap: 4px;
+  }
+}
+
+/* Economics ---------------------------------------------------------------- */
+
+.econ {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.calc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.calc__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* The dither is a texture behind live numbers, not a pattern in its own
+     right. Half opacity was enough to eat the mono labels sitting on it. */
+  opacity: 0.26;
+  pointer-events: none;
+}
+
+.calc__inner {
+  position: relative;
+}
+
+.calc__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.calc__spend {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+}
+
+/* The control is a 30px band; the hairline is drawn by the track inside it. The
+   line used to be the element, which made the whole slider a 2px-tall hit
+   target — fine for a mouse aiming at the thumb, undraggable with a thumb.
+   Margins carry the difference so the rhythm is the 58px it always was. */
+.calc__slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 30px;
+  background: transparent;
+  margin: 12px 0 16px;
+  cursor: pointer;
+}
+
+.calc__slider::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--border-strong);
+}
+
+.calc__slider::-moz-range-track {
+  height: 2px;
+  background: var(--border-strong);
+}
+
+.calc__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--fg);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--fg);
+  /* WebKit hangs the thumb off the top of the track; Firefox centres it for
+     you. Half the 21px thumb back up, less the 1px half-track. */
+  margin-top: -9.5px;
+  cursor: grab;
+}
+
+.calc__slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--fg);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--fg);
+  cursor: grab;
+}
+
+.calc__out {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.calc__cell {
+  background: var(--bg-raised);
+  padding: 18px;
+}
+
+.calc__cell-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.calc__cell-value {
+  font-size: var(--text-3xl);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 8px;
+}
+
+.calc__cell--win .calc__cell-value {
+  color: var(--good);
+}
+
+.calc__foot {
+  margin-top: 16px;
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-top: 84px;
+}
+
+.stat {
+  padding: 34px 26px;
+  border-right: 1px solid var(--border);
+}
+
+.stat:last-child {
+  border-right: 0;
+}
+
+.stat__value {
+  font-size: var(--text-4xl);
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__label {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+@media (max-width: 1000px) {
+  .econ {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat:nth-child(2n) {
+    border-right: 0;
+  }
+  .stat:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 520px) {
+  .calc__out {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Reach --------------------------------------------------------------------- */
+/* Three rings around the mark. The inner one is what a call can be routed to,
+   the middle one is what the router weighs before it picks, the outer one is
+   the kind of work that comes back — read out by the legend under the stage,
+   because a ring is a grouping the eye gets for free and a screen reader does
+   not.
+
+   Chips sit centred on their ring, so half of one on the horizontal axis hangs
+   past the circle. That is why the stage is capped well under the container:
+   the overhang has to land in the margin, not in the scrollbar. */
+
+.reach {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.reach__stage {
+  position: relative;
+  width: min(100%, 700px);
+  aspect-ratio: 1;
+  /* The hover beam runs from a chip back to the mark, and that distance is the
+     ring's radius — a share of the stage, not of the chip the beam hangs off.
+     A size container is what lets a descendant name it: 25cqw is 25% of the
+     stage, which is exactly the inner ring's r=25 in the rings' 0 0 100 100.
+     Safe to contain: the stage's own size comes from its width and its
+     aspect-ratio, never from the chips inside it. */
+  container-type: size;
+  /* How far the word under the pointer comes forward. One number for the chips
+     and the mark, so nothing on the plate is more picked-up than anything else.
+     Modest on purpose: the chips sit on rings a fixed distance apart and a chip
+     that grew enough to be obviously bigger would grow into its neighbours. */
+  --reach-lift: 1.16;
+}
+
+/* Rings --------------------------------------------------------------------- */
+
+.reach__rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* The stroke is centred on the path, so the outer ring's own line would be
+     clipped by the viewBox edge without this. */
+  overflow: visible;
+}
+
+.reach__ring {
+  fill: none;
+  stroke: var(--border);
+  /* One device pixel at every stage size. Scaling the stroke with the viewBox
+     would put it at half a pixel on a phone and two on a desktop. */
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.reach__ring--in {
+  stroke: var(--border-strong);
+}
+
+/* Dashes in device units, since the stroke is. Both rings turn, slowly and
+   against each other, which is the whole of the motion at rest. */
+.reach__ring--mid {
+  stroke-dasharray: 2 4;
+  animation: reach-turn 120s linear infinite;
+}
+
+.reach__ring--out {
+  stroke: var(--border-faint);
+  stroke-dasharray: 1 5;
+  animation: reach-turn 180s linear infinite reverse;
+}
+
+@keyframes reach-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* The scan --------------------------------------------------------------- */
+/* A wedge of light going round the plate. It is one rotating element with a
+   conic fill, so the browser composites a transform and nothing repaints.
+   Deliberately faint: at any weight where you would call it blue it stops
+   being light falling across the rings and becomes a slab sitting in front of
+   them.
+
+   The mask does two jobs. It opens a hole for the mark, which the wedge would
+   otherwise wash out once a turn, and it takes the rim back to nothing so the
+   wedge has no hard outer edge — a conic gradient inside a circle ends on the
+   circle, and that arc reads as a drawn shape.
+
+   The plate around it is not decoration. A square's axis-aligned box grows by
+   root two as it turns, and scrollable overflow is measured off that box, so a
+   rotating square this size gives the whole document a horizontal scrollbar for
+   part of every turn. The plate clips it at the circle the wedge was being
+   clipped to anyway, and overflow that is clipped is never scrolled to. */
+
+.reach__scan {
+  position: absolute;
+  inset: 2%;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.reach__sweep {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    rgba(81, 162, 255, 0.1) 0deg,
+    rgba(81, 162, 255, 0.045) 15deg,
+    rgba(81, 162, 255, 0.012) 36deg,
+    rgba(81, 162, 255, 0) 64deg,
+    rgba(81, 162, 255, 0) 342deg,
+    /* Ramps back up to the peak so the wedge closes on itself. Without this the
+       start angle is a step from nothing to full, and that step is a straight
+       line from the mark to the rim — the one part of this that would read as
+       an edge rather than as light. */ rgba(81, 162, 255, 0.1) 360deg
+  );
+  /* closest-side, so 100% is the plate's own edge. Sized to the corners instead
+     — which is what a radial-gradient does if you let it — the fade to nothing
+     would land outside the circle and get clipped off, leaving the wedge cut at
+     four fifths of its weight along the rim. Every stop below is a fraction of
+     the radius the eye actually sees. */
+  -webkit-mask-image: radial-gradient(
+    closest-side circle at 50% 50%,
+    transparent 20%,
+    rgba(0, 0, 0, 0.7) 60%,
+    rgba(0, 0, 0, 0.7) 74%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    closest-side circle at 50% 50%,
+    transparent 20%,
+    rgba(0, 0, 0, 0.7) 60%,
+    rgba(0, 0, 0, 0.7) 74%,
+    transparent 100%
+  );
+  animation: reach-turn 18s linear infinite;
+}
+
+/* Core ---------------------------------------------------------------------- */
+
+.reach__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: clamp(62px, 15%, 100px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--card);
+  /* Sits above the wedge rather than under it, and casts far enough to lift
+     off the rings without reading as a drop shadow. */
+  box-shadow:
+    0 0 0 7px rgba(8, 9, 10, 0.9),
+    0 0 42px rgba(81, 162, 255, 0.16);
+  transition:
+    transform 0.32s var(--ease-out),
+    border-color 0.32s var(--ease-out),
+    box-shadow 0.32s var(--ease-out);
+}
+
+.reach__core-mark {
+  /* The label under it is gone, so the mark is the whole of the core and can
+     take the room the two of them used to share. Stops short of the plate's
+     own edge — the disc reads as a plate the mark sits on, not as a frame
+     drawn round it. */
+  width: 52%;
+  height: auto;
+  /* The mark is dark on transparent; the plate it lands on is not. */
+  filter: invert(1);
+  opacity: 0.92;
+  transition: opacity 0.32s var(--ease-out);
+}
+
+/* Nodes --------------------------------------------------------------------- */
+
+.reach__set {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Three lists, each covering the whole stage, stacked in document order. A
+     transparent background is not a transparent target: without this the outer
+     ring's list sits over the other two and swallows every pointer event before
+     it reaches a chip, so only the eight chips in the last list can ever be
+     hovered. The chips take the pointer back one by one. */
+  pointer-events: none;
+}
+
+.reach__node {
+  position: absolute;
+  /* left/top put the chip's corner on the ring; this puts its middle there.
+     The individual property rather than transform, because three things want to
+     move this chip and only one of them can hold `transform`: the centring, the
+     arrival keyframe's scale, and the hover's. As individual properties they
+     compose — translate, then scale, then transform — so the hover can grow the
+     chip about its own middle without any of them having to know about the
+     others. Written as one transform, the last declaration would win and the
+     chip would hover itself back onto the ring by its corner. */
+  translate: -50% -50%;
+  white-space: nowrap;
+  padding: 7px 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: var(--text-xs);
+  line-height: 1;
+  color: var(--fg-muted);
+  pointer-events: auto;
+  /* How far out from the chip's middle the beam starts, so it leaves from the
+     chip's edge rather than from under its label. */
+  --beam-gap: 34px;
+  transition:
+    color 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out),
+    filter 0.3s var(--ease-out);
+}
+
+/* Each ring's radius, in the stage's own units, for the beam below. */
+.reach__set--in {
+  --r: 25cqw;
+}
+
+.reach__set--mid {
+  --r: 36.5cqw;
+}
+
+.reach__set--out {
+  --r: 48cqw;
+}
+
+/* Three weights of attention, innermost brightest. */
+.reach__set--in .reach__node {
+  border-color: var(--border-strong);
+  background: var(--card-hover);
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.reach__set--out .reach__node {
+  padding: 6px 11px;
+  border-color: var(--border-faint);
+  background: var(--bg-raised);
+  font-size: 0.6875rem;
+  color: var(--fg-dim);
+}
+
+html.can-hover .reach__node:hover {
+  transform: scale(var(--reach-lift));
+  border-color: var(--brand);
+  background: var(--card-hover);
+  color: var(--fg);
+}
+
+/* Reaching it ---------------------------------------------------------------- */
+/* Point at anything on the plate and the call goes and gets it: a line runs out
+   of the mark to that chip, the mark answers, and everything else on the plate
+   steps back. It is the same claim the section's copy makes, made once per
+   chip, and it is the only way the reader gets to choose which one.
+ *
+   The line is the chip's own ::before rather than an element in the stage,
+   because only the chip knows where it is. --a is its bearing clockwise from
+   twelve and --r its ring's radius, and the two are enough: rotate to --a + 90
+   to face the middle, and run --r back along that. --a + 90 rather than --a
+   because a CSS rotation of zero points right and twelve is a quarter turn
+   earlier.
+ *
+   translateX comes after the rotate, so it walks along the beam's own axis and
+   pushes its start clear of the label; the width loses the same amount and the
+   far end still lands on the mark. z-index: -1 keeps it under the label — a
+   positioned pseudo-element otherwise paints over its own parent's text.
+ *
+   The reveal is a clip, not a scale: it opens from the mark outwards, which is
+   the direction the call actually travels. Scaling from the origin would run it
+   the other way, chip to mark, and read as the chip reaching in. */
+
+.reach__node::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  width: calc(var(--r, 25cqw) - var(--beam-gap));
+  height: 1px;
+  margin-top: -0.5px;
+  transform-origin: 0 50%;
+  transform: rotate(calc((var(--a, 0) + 90) * 1deg)) translateX(var(--beam-gap));
+  background: linear-gradient(90deg, rgba(81, 162, 255, 0.85), rgba(81, 162, 255, 0.14));
+  opacity: 0;
+  clip-path: inset(0 0 0 100%);
+  pointer-events: none;
+  transition:
+    opacity 0.2s linear,
+    clip-path 0.42s var(--ease-out);
+}
+
+html.can-hover .reach__node:hover::before {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+
+/* Everything not being pointed at steps back and out of focus, so the one word
+   under the cursor is the only thing on the plate still being read. filter
+   rather than opacity: the arrival keyframe is fill: both and its final opacity
+   outranks any declaration here for as long as the page is open. filter is
+   nobody's animated property, so it is the one channel left that a hover can
+   still win — and blur is only available on it anyway.
+ *
+   The mark in the middle is a word on this plate like the other nineteen, so it
+   answers to the pointer the same way: it grows and everything else recedes.
+   The difference is only which way the beams would run, and it has none. */
+html.can-hover .reach__stage:has(.reach__node:hover) .reach__node:not(:hover),
+html.can-hover .reach__stage:has(.reach__core:hover) .reach__node {
+  filter: opacity(0.36) blur(1.5px);
+}
+
+html.can-hover .reach__core:hover {
+  transform: translate(-50%, -50%) scale(var(--reach-lift));
+}
+
+html.can-hover .reach__stage:has(.reach__node:hover) .reach__core,
+html.can-hover .reach__core:hover {
+  border-color: rgba(81, 162, 255, 0.5);
+  box-shadow:
+    0 0 0 7px rgba(8, 9, 10, 0.9),
+    0 0 64px rgba(81, 162, 255, 0.34);
+}
+
+html.can-hover .reach__stage:has(.reach__node:hover) .reach__core-mark,
+html.can-hover .reach__core:hover .reach__core-mark {
+  opacity: 1;
+}
+
+/* Arrival ------------------------------------------------------------------- */
+/* Not [data-reveal]: that sets transform on the element it reveals, and transform
+   on a chip belongs to the pointer. This drives opacity and the `scale` property
+   off the one reveal the whole block does get, leaving the centring translate
+   and the hover's transform alone rather than having to restate them. */
+
+html.js .reach__node {
+  opacity: 0;
+}
+
+html.js .reach.is-revealed .reach__node {
+  animation: reach-node-in 0.55s var(--ease-out) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes reach-node-in {
+  from {
+    opacity: 0;
+    scale: 0.86;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* Being reached ------------------------------------------------------------- */
+/* Nothing here orbits. The chips hold the places the trigonometry put them and
+   the light goes round instead — each one takes the scan as it arrives, which
+   is the picture of one call being weighed against everything in range rather
+   than of a carousel.
+
+   The ring is a pseudo-element rather than the chip's own border because the
+   chip's border, colour and background are what :hover uses, and an animation
+   outranks a hover rule for as long as it is running. Lighting the chip
+   directly would mean the pointer stopped working on nineteen chips out of
+   twenty at any moment.
+
+   Timing is the sweep's, not an invented one. .reach__sweep turns once in 18s,
+   so the wedge crosses a degree every 0.05s and reaches the chip at angle --a
+   at exactly --a x 0.05s. The wedge's light runs about 64 degrees behind its
+   peak, or 3.2s, which is why the rise takes 17.8% of the cycle and the delay
+   is pulled 3.2s earlier: the ramp then finishes — the chip is brightest — on
+   the frame the wedge actually arrives. */
+
+.reach__node::after {
+  content: '';
+  position: absolute;
+  /* One pixel outside the chip's own border, so the two rings stack rather
+     than fight over the same line. */
+  inset: -1px;
+  border: 1px solid var(--brand);
+  border-radius: 999px;
+  box-shadow: 0 0 16px rgba(81, 162, 255, 0.28);
+  opacity: 0;
+  pointer-events: none;
+}
+
+html.js .reach.is-revealed .reach__node::after {
+  animation: reach-lit 18s linear infinite;
+  animation-delay: calc(var(--a, 0) * 0.05s - 3.2s);
+}
+
+@keyframes reach-lit {
+  0% {
+    opacity: 0;
+  }
+  17.8% {
+    opacity: 1;
+  }
+  /* 0.9s of afterglow — the ramp back up to the wedge's peak on the far side of
+     0 degrees, which is the light leaving rather than a second arrival. */
+  22.8% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The pointer still wins where it lands: a chip under the cursor holds its ring
+   lit for as long as the cursor is on it, over whatever the sweep is doing. */
+html.can-hover .reach__node:hover::after {
+  animation: none;
+  opacity: 1;
+}
+
+/* Note ----------------------------------------------------------------------- */
+
+.reach__note {
+  margin: 0;
+  max-width: 52ch;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+}
+
+/* The stage is capped rather than fluid at each step down, because what has to
+   fit is not the circle — it is the circle plus half a chip at each side, and
+   that half does not shrink as fast as the circle does. */
+@media (max-width: 900px) {
+  .reach__stage {
+    width: min(90%, 700px);
+  }
+}
+
+@media (max-width: 720px) {
+  .reach {
+    gap: 32px;
+  }
+
+  .reach__stage {
+    width: min(88%, 560px);
+  }
+
+  .reach__node {
+    padding: 6px 11px;
+    font-size: 0.6875rem;
+    /* Chips and radii both shrink; the beam's head start has to shrink with
+       them or it eats the whole of the inner ring's run. */
+    --beam-gap: 26px;
+  }
+
+  .reach__set--out .reach__node {
+    padding: 5px 9px;
+    font-size: 0.625rem;
+  }
+
+  /* Below a stage of about 620 the core is under 100px and the plate's own
+     border starts to crowd the mark. A couple of points off the width buys the
+     margin back. */
+  .reach__core-mark {
+    width: 48%;
+  }
+}
+
+@media (max-width: 560px) {
+  .reach__stage {
+    width: min(84%, 440px);
+  }
+}
+
+@media (max-width: 430px) {
+  .reach__stage {
+    width: min(84%, 300px);
+  }
+
+  .reach__node {
+    padding: 5px 9px;
+    font-size: 0.625rem;
+    --beam-gap: 20px;
+  }
+
+  .reach__set--out .reach__node {
+    padding: 4px 7px;
+    font-size: 0.5625rem;
+  }
+}
+
+html.reduced-motion .reach__ring--mid,
+html.reduced-motion .reach__ring--out,
+html.reduced-motion .reach__sweep {
+  animation: none;
+}
+
+html.reduced-motion.js .reach__node,
+html.reduced-motion.js .reach.is-revealed .reach__node {
+  animation: none;
+  opacity: 1;
+}
+
+/* The travelling light is the one thing here that never stops, so it is the one
+   thing this has to switch off outright rather than shorten. */
+html.reduced-motion .reach__node::after,
+html.reduced-motion.js .reach.is-revealed .reach__node::after {
+  animation: none;
+  opacity: 0;
+}
+
+/* Coverage (drifting lanes) ------------------------------------------------- */
+/* Three lanes of provider marks, each moving at its own speed and against its
+   neighbour. There is no container and no grid: motion is what holds the block
+   together, and a chip is only as wide as the name inside it, so no two of them
+   line up vertically for longer than a second.
+
+   This replaced a hairline grid of thirty equal cells under a cursor-tracked
+   spotlight. The spotlight existed because the marks were flat grey and needed
+   something to bring them up; they are the vendors' own colours now, at full
+   strength, so the only thing left for a pointer to do is slow the lanes down
+   far enough to read one. */
+
+.coverage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Each lane clips its own track and dissolves at both ends, so the loop seam
+   and the edge of the block are the same invisible event. The quiet ground is
+   masked by the same gradient — it has to fade with the marks, or the band
+   ends in a hard rectangle exactly where the logos stop. */
+.coverage__lane {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-raised);
+  /* min(), not a flat percentage: a name is ~90px of type, so a fade shorter
+     than that cuts a word in half and reads as a clipped panel rather than as
+     something passing out of view. Percentages give 57px at 820 and 150px at
+     1440 — wrong at both ends. The percentage only takes over below ~730px,
+     where 88px would eat a quarter of the lane. */
+  --fade: min(88px, 12%);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent
+  );
+}
+
+/* width: max-content, so the track measures its content rather than its lane —
+   a percentage-width track would wrap the set the moment the lane narrowed. */
+.coverage__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.coverage__set {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+/* Lanes come in staggered rather than together — three rows arriving as one
+   block reads as a table dropping in, which is the shape being replaced. */
+html.js:not(.reduced-motion) .coverage__lane {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+}
+
+html.js:not(.reduced-motion) .coverage.is-revealed .coverage__lane {
+  opacity: 1;
+  transform: none;
+}
+
+html.js:not(.reduced-motion) .coverage.is-revealed .coverage__lane:nth-child(2) {
+  transition-delay: 0.09s;
+}
+
+html.js:not(.reduced-motion) .coverage.is-revealed .coverage__lane:nth-child(3) {
+  transition-delay: 0.18s;
+}
+
+/* The sprite is a definition, not a picture. Out of flow and out of the
+   accessibility tree, but not display:none — Safari will not resolve a <use>
+   into a subtree that was never laid out. */
+.u-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* No box at rest. The border and the ground are transparent until the pointer
+   arrives, which is the whole answer to a wall of thirty drawn rectangles: the
+   chip is an interaction state, not a container. The border is declared rather
+   than added on hover so the row never shifts by two pixels when it lights. */
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  height: 56px;
+  /* The gap between two marks is two of these paddings, so the spacing across
+     the clone seam matches the spacing inside a set without a flex gap that
+     would have to be added back to the wrap width. */
+  padding-inline: 21px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  white-space: nowrap;
+  transition:
+    background-color 0.32s var(--ease-out),
+    border-color 0.32s var(--ease-out),
+    transform 0.32s var(--ease-out);
+}
+
+.mark__glyph {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  /* Only the marks whose own lockup is monochrome paint currentColor — those
+     are drawn in the page's ink, which is the vendor's dark-background version.
+     Everything else carries its own fills and ignores this. */
+  fill: currentColor;
+  color: var(--fg);
+  transition: transform 0.32s var(--ease-out);
+}
+
+.mark__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  transition: color 0.32s var(--ease-out);
+}
+
+.mark:hover {
+  background: var(--card-hover);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.mark:hover .mark__glyph {
+  transform: scale(1.08);
+}
+
+.mark:hover .mark__name {
+  color: var(--fg);
+}
+
+/* The number the section exists to make, kept out of the lanes so it cannot
+   drift off the edge. Aligned to the container rather than to the marks — the
+   lanes fade out at their ends, and a line of type starting inside that fade
+   reads as a mistake. */
+.coverage__tail {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+}
+
+.coverage__tail-count {
+  color: var(--fg);
+}
+
+.coverage__tail-note {
+  color: var(--fg-dim);
+}
+
+/* Without the clone pass there is nothing wider than the lane to scroll, so the
+   set has to wrap or ten marks run off the edge and take three of them with
+   them. Two ways to land here: JavaScript that never ran, and a reader who
+   asked for no motion — the layout answer is the same for both. */
+html:not(.js) .coverage__track,
+html.reduced-motion .coverage__track {
+  width: 100%;
+}
+
+html:not(.js) .coverage__set,
+html.reduced-motion .coverage__set {
+  /* width, not flex-wrap alone: the set is a flex item at `flex: none` so that
+     the drifting clones keep their measured width, and a `none` item is sized by
+     its own content — wrap has nothing to wrap against and the row runs straight
+     off the lane. Giving it the track's width is what puts a wall on the right. */
+  width: 100%;
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+/* The edge fade is a property of the drift, not of the list. Static lanes get
+   their full width back. */
+html:not(.js) .coverage__lane,
+html.reduced-motion .coverage__lane {
+  -webkit-mask-image: none;
+  mask-image: none;
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 900px) {
+  .mark {
+    height: 50px;
+    padding-inline: 16px;
+    gap: 8px;
+  }
+  .mark__glyph {
+    width: 21px;
+    height: 21px;
+  }
+}
+
+/* Team --------------------------------------------------------------------- */
+/* Names as a list. No cards, no portraits — the rows carry themselves. */
+
+.team {
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+
+.team__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px 28px;
+  align-items: center;
+  padding: 38px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: color 0.35s var(--ease-out);
+}
+
+.team__row:hover {
+  color: var(--fg);
+}
+
+html.can-hover .team:hover .team__row:not(:hover) {
+  color: var(--fg-faint);
+}
+
+.team__name {
+  font-size: var(--text-4xl);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.team__role {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.team__links {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.team__link {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  transition: color 0.2s linear;
+  position: relative;
+  z-index: 2;
+  /* "X" is one glyph. At its natural size that is an 8px-wide target sitting
+     14px from its neighbours — inside a thumb, indistinguishable from the link
+     next to it. The box grows; the text does not move. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.team__link:hover {
+  color: var(--brand);
+}
+
+/* Same box, thumb-sized. The four chips still fit one row at 375px:
+   65 + 40 + 49 + 41 + three 14px gaps = 237 inside a 327px column. */
+@media (max-width: 700px) {
+  .team__link {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+.team__bio {
+  grid-column: 1 / -1;
+  color: var(--fg-muted);
+  max-width: 70ch;
+  font-size: var(--text-base);
+}
+
+@media (max-width: 760px) {
+  .team__row {
+    grid-template-columns: 1fr;
+    padding: 26px 0;
+  }
+}
+
+/* CTA ---------------------------------------------------------------------- */
+
+.cta {
+  position: relative;
+  text-align: center;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.cta__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.cta__title {
+  font-size: var(--text-6xl);
+  max-width: 18ch;
+  margin-inline: auto;
+}
+
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 470px;
+  margin: 34px auto 0;
+}
+
+/* The honeypot. Taken out of the layout without display:none, which the bots
+   worth catching skip: they read the stylesheet too, and a field nobody could
+   possibly fill in is not one they bother filling in. Clipped to nothing at 1px
+   instead, the way a visually-hidden label is, so it is still a rendered input.
+   It carries no .form__input class, so the validator never sees it. */
+.form__trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.form__input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+  font-size: var(--text-base);
+  transition: border-color 0.2s linear;
+  min-width: 0;
+}
+
+.form__input::placeholder {
+  color: var(--fg-dim);
+}
+
+/* The border lifts on focus, and the ring stays: a one-step border change from
+   .16 to .55 alpha is not an indicator a keyboard user can find. */
+.form__input:focus {
+  border-color: var(--fg-muted);
+}
+
+/* The contact page asks for four things, not one, so the row of the CTA strip
+   becomes a column of labelled fields. Left-aligned and full width of the
+   column it sits in: a centred 470px slot would read as another newsletter box. */
+.form--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  max-width: 440px;
+  margin-inline: 0;
+}
+
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* flex:1 from .form__input is what makes it share a row with the button in the
+   CTA strip; inside a column it would fight the label for height instead. */
+.form--stack .form__input {
+  flex: none;
+}
+
+.form--stack .btn {
+  align-self: flex-start;
+}
+
+.form__check {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+
+/* accent-color repaints the native box rather than replacing it, so the tick,
+   the focus ring and the keyboard behaviour all stay the browser's. */
+.form__checkbox {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.form__status {
+  /* Lives inside the form so the module can find it with one query; the full
+     basis drops it onto its own row under the input. */
+  flex: 0 0 100%;
+  margin-top: 4px;
+  min-height: 20px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.form__status.is-ok {
+  color: var(--good);
+}
+.form__status.is-err {
+  color: var(--warn);
+}
+
+/* The box is 17px but the label is the target — tapping the sentence toggles
+   it — so the row only has to be tall enough to hit reliably. */
+@media (max-width: 640px) {
+  .form__check {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 520px) {
+  .form {
+    flex-direction: column;
+  }
+  .form .btn {
+    justify-content: center;
+  }
+}
+
+/* Feature rows (platform page) --------------------------------------------- */
+
+.feature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  /* start, not center: the badge and the panel's title bar are the two things
+     the eye pairs across the gutter, and centring puts them on different lines
+     by however much the two columns differ in height. */
+  align-items: start;
+  padding-block: 72px;
+  border-bottom: 1px solid var(--border);
+}
+
+.feature:nth-child(even) .feature__media {
+  order: -1;
+}
+
+.feature__badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  color: var(--brand);
+  display: block;
+  margin-bottom: 16px;
+}
+
+.feature__title {
+  font-size: var(--text-3xl);
+}
+
+.feature__body {
+  margin-top: 16px;
+  color: var(--fg-muted);
+}
+
+.feature__list {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.feature__list li {
+  padding-left: 16px;
+  border-left: 2px solid var(--border-strong);
+  font-size: var(--text-base);
+  color: var(--fg-muted);
+}
+
+@media (max-width: 900px) {
+  .feature {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-block: 48px;
+  }
+  .feature:nth-child(even) .feature__media {
+    order: 0;
+  }
+}
+
+/* Pricing ------------------------------------------------------------------ */
+
+.tiers {
+  display: grid;
+  /* Two plans: pay as you go, and a conversation. The 1px gap is the divider —
+     it is the background showing through, not a border, so the cards keep a
+     single hairline between them however many there are. */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tier {
+  background: var(--bg-raised);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: background-color 0.35s var(--ease-out);
+}
+
+.tier:hover,
+.tier.is-featured {
+  background: var(--card-hover);
+}
+
+.tier__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.tier.is-featured .tier__name {
+  color: var(--brand);
+}
+
+.tier__price {
+  font-size: var(--text-4xl);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.tier__price small {
+  font-size: var(--text-sm);
+  color: var(--fg-dim);
+  letter-spacing: 0;
+  font-family: var(--font-mono);
+}
+
+.tier__note {
+  color: var(--fg-muted);
+  font-size: var(--text-base);
+}
+
+.tier__list {
+  list-style: none;
+  margin: 0;
+  padding: 20px 0 0;
+  display: grid;
+  gap: 11px;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-base);
+  color: var(--fg-muted);
+}
+
+/* Grid rather than a margin on the marker, so a feature that wraps keeps its
+   second line aligned with the first instead of running back under the arrow. */
+.tier__list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px;
+}
+
+.tier__list li::before {
+  content: '→';
+  color: var(--fg-dim);
+}
+
+.tier .btn {
+  margin-top: auto;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .tiers {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compliance grid ---------------------------------------------------------- */
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.grid-3 > * {
+  background: var(--bg-raised);
+  padding: 28px;
+}
+
+.tile__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.tile__title {
+  margin-top: 14px;
+  font-size: var(--text-lg);
+}
+
+/* A product's own mark ahead of its name, where a title is a list of products
+   rather than a sentence. The pair is kept on one line — a mark stranded at the
+   end of a line above the name it belongs to reads as a bullet, not a logo. */
+.tile__brand {
+  white-space: nowrap;
+}
+
+/* inline-block because the reset makes every svg a block; sized in em so it
+   tracks the heading down the type scale. */
+.tile__mark {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 6px;
+  vertical-align: -0.1em;
+  fill: currentColor;
+}
+
+.tile__body {
+  margin-top: 10px;
+  color: var(--fg-muted);
+  font-size: var(--text-base);
+}
+
+@media (max-width: 900px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Timeline ----------------------------------------------------------------- */
+
+.timeline {
+  border-top: 1px solid var(--border);
+}
+
+.timeline__row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 24px;
+  padding: 30px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeline__when {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  padding-top: 5px;
+}
+
+.timeline__what {
+  font-size: var(--text-lg);
+}
+
+/* The address is the link. At 18px its line box is 22px tall — two short of a
+   target — so the anchor takes the height itself rather than inheriting it. */
+.timeline__what a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+@media (max-width: 700px) {
+  .timeline__what a {
+    min-height: 40px;
+  }
+}
+
+.timeline__body {
+  margin-top: 8px;
+  color: var(--fg-muted);
+  font-size: var(--text-base);
+  max-width: 66ch;
+}
+
+@media (max-width: 640px) {
+  .timeline__row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* Page header (sub-pages) --------------------------------------------------- */
+
+.page-head {
+  padding-top: calc(66px + 90px);
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  /* Keeps the z-index:-1 particle canvas inside this section instead of
+     sinking behind the page background, where it would be invisible. */
+  isolation: isolate;
+}
+
+.page-head > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* The sub-page headline is left-aligned and capped at 18ch, so a full-bleed
+   field puts the logo glyph straight through the last word. Confining the
+   canvas to the empty right column keeps the shape readable as a shape —
+   avoidance would work too, but it would deform the glyph it is protecting. */
+.page-head .hero__field {
+  left: auto;
+  right: 0;
+  width: min(520px, 40%);
+}
+
+/* Below this the headline uses the full column and there is no empty right
+   side to put the glyph in. The hero on the home page still carries the field. */
+@media (max-width: 900px) {
+  .page-head .hero__field {
+    display: none;
+  }
+}
+
+.page-head__title {
+  font-size: var(--text-6xl);
+  max-width: 18ch;
+  margin-top: 24px;
+}
+
+.page-head__lede {
+  margin-top: 22px;
+  font-size: var(--text-md);
+  color: var(--fg-muted);
+  max-width: 60ch;
+}
+
+/* Console ---------------------------------------------------------------- */
+/* One request replayed across six panels. The layout is a fixed 1240x620
+   drawing surface expressed in percentages, so the connector SVG can be
+   authored in that coordinate space once and stay welded to the panel edges at
+   every width. Panel centres sit at 13.7% / 50% / 86.3% and the panels are
+   27.4% / 35.5% / 27.4% wide, which puts their outer edges exactly on the
+   container bounds and their inner edges on the wire endpoints.
+
+   Nothing here is hidden by default. Every dim or undrawn state is gated on
+   html.js, so with scripting off the whole run reads at once as a static
+   transcript — the same contract the reveals and the agent list use. */
+
+/* The stage carries its own top rule, so the head does not need the full
+   64px of air the other sections give theirs. */
+.console .section-head {
+  margin-bottom: 34px;
+}
+
+.console__stage {
+  position: relative;
+  width: calc(100% - var(--gutter) * 2);
+  max-width: calc(var(--container) - var(--gutter) * 2);
+  height: 620px;
+  margin-inline: auto;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.console__wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* pathLength="1" normalises every wire to a single unit, so one dash pair
+   draws them all regardless of their real geometry. */
+.console__wires path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.55s var(--ease-out);
+}
+
+.wire__glow {
+  stroke: var(--brand);
+  stroke-width: 8;
+  stroke-opacity: 0.15;
+}
+
+.wire__line {
+  stroke: var(--brand);
+  stroke-width: 2;
+}
+
+html.js .console__wires path {
+  stroke-dashoffset: 1;
+}
+
+html.js .wire.is-on path {
+  stroke-dashoffset: 0;
+}
+
+/* Panels ------------------------------------------------------------------ */
+/* Scoped to the stage. `.panel` is also the generic bordered card used on the
+   platform, security and contact pages; an unscoped rule here pulled those out
+   of flow, pinned them to left:13.7% at 27.4% width, and left their grid cells
+   at zero height with the card floating over the section above. */
+
+.console__stage .panel {
+  position: absolute;
+  left: 13.7%;
+  width: 27.4%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 15px 16px;
+  z-index: 2;
+  transition:
+    border-color 0.35s linear,
+    background-color 0.35s linear,
+    box-shadow 0.45s var(--ease-out);
+}
+
+/* Waiting its turn. Border and surface only — never opacity, because dimming
+   a whole panel drags its text under the contrast floor along with it. */
+html.js .console__stage .panel {
+  border-color: var(--border-faint);
+}
+
+html.js .console__stage .panel.is-done {
+  border-color: var(--border);
+}
+
+html.js .console__stage .panel.is-live {
+  border-color: rgba(81, 162, 255, 0.34);
+  background: var(--card-hover);
+  box-shadow: 0 20px 44px -28px rgba(81, 162, 255, 0.55);
+}
+
+.panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.panel__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  transition: color 0.35s linear;
+}
+
+html.js .panel.is-live .panel__label {
+  color: var(--brand);
+}
+
+.panel__meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+  white-space: nowrap;
+}
+
+/* Intake stream ----------------------------------------------------------- */
+/* What the router has to choose from, before it has chosen anything: the sheet
+   of provider marks rising through a card, one card at a time.
+
+   The layer is opaque and sits on top of the card it belongs to, so the phase
+   ends by handing the card from the catalogue to the reasoning about it —
+   nothing reflows, and because the layer carries the card's own label at the
+   card's own padding, the label is the one thing that does not move.
+
+   Built by console.js, so it exists only where there is script to run it. */
+
+/* Handover, not a crossfade. The layer carries the card's own surface, so
+   fading the whole thing at once prints the transcript straight through the
+   middle of the stream — for half a second the classify card was its four
+   signal rows and a hundred and twenty logos in the same pixels, and neither
+   was readable. So the surface and what is on it move separately, and always
+   in the order that keeps one of the two hidden:
+
+     in   surface covers the transcript (0.3s) → marks arrive on it (0.28s)
+     out  marks leave (0.18s) → surface uncovers the transcript (0.4s)
+
+   The card is briefly blank in both directions. That reads as the card being
+   handed over, which is what is happening. */
+
+.pool {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 15px 16px;
+  border-radius: inherit;
+  /* inherit rather than var(--card): the panel's own surface in whatever state
+     it is in, so the layer can never read as a paler rectangle inside it. */
+  background-color: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out) 0.18s;
+}
+
+.pool__head,
+.pool__grid {
+  opacity: 0;
+  transition: opacity 0.18s linear;
+}
+
+/* Per card, not per stage: the run walks the cards in series, so the class that
+   opens a card's catalogue has to live on the card. */
+.panel.is-intake .pool {
+  opacity: 1;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.panel.is-intake .pool__head,
+.panel.is-intake .pool__grid {
+  opacity: 1;
+  transition: opacity 0.28s linear 0.22s;
+}
+
+.pool__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pool__grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  overflow: hidden;
+  /* Marks arrive out of nothing at the bottom and dissolve before the top, so a
+     column reads as a stream passing through the card rather than a list the
+     card has cut in half. */
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 26%, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 26%, #000 72%, transparent);
+}
+
+/* start, not the grid's default stretch: a column is taller than its cell by
+   design, and stretching would squash its marks into the height of three.
+
+   auto-fill is what makes one build work at every width. On a desktop card the
+   track is one mark wide and the column is a single file; on a stacked phone or
+   tablet the same card is the width of the screen, and the marks reflow two or
+   three abreast instead of growing to 150px each. Duration is measured back off
+   the laid-out height by console.js so the pace comes out the same either way;
+   the negative delay is per column. */
+.pool__col {
+  align-self: start;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 10px;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+/* Six columns in a 248px card leaves each one 33px, and a 40px track does not
+   fit in 33 — the marks hung over the column edge and out of the grid. The
+   floor is what has to give, not the column count: six is what makes the three
+   cards read as one stream. */
+@media (max-width: 560px) {
+  .pool__col {
+    grid-template-columns: repeat(auto-fill, minmax(26px, 1fr));
+  }
+}
+
+.panel.is-intake .pool__col {
+  animation-name: pool-rise;
+}
+
+/* Half, not all of it: the column carries its marks twice, so half its height
+   is one full set and the loop closes on the frame it opened on. */
+@keyframes pool-rise {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+/* The sheet carries the vendors' own artwork, so the mark decides its own
+   colour and this only has to supply ink for the three dozen brands whose mark
+   genuinely is monochrome — white, which is the lockup those brands publish for
+   a dark background. No shared opacity either: dimming colour is what made the
+   stream read as one grey texture. */
+.pool__glyph {
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 23%;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  color: var(--fg);
+  fill: currentColor;
+}
+
+/* The first beat is painted before the observer has had a chance to fire, so
+   the sweep can flash for a frame even where it is never going to run. */
+@media (prefers-reduced-motion: reduce) {
+  .console__stage.is-intake .pool {
+    opacity: 0;
+  }
+
+  .console__stage.is-intake .pool__col {
+    animation-name: none;
+  }
+}
+
+/* Classifier -------------------------------------------------------------- */
+
+.panel--classify {
+  top: 7%;
+  height: 372px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.panel__query {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+
+.panel__query-icon {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--brand);
+}
+
+.panel__query-text {
+  font-size: var(--text-xs);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel__query-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+  white-space: nowrap;
+}
+
+.signal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Name and verdict share the first line so the description below gets the
+   panel's full width — squeezing it into a flex row alongside the tag wraps it
+   to two lines the moment the column narrows, and three of those overflow the
+   panel. */
+.signal__row {
+  padding: 8px 10px;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius);
+  transition: border-color 0.35s linear;
+}
+
+.signal__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 3px;
+}
+
+html.js .panel.is-live .signal__row {
+  border-color: var(--border);
+}
+
+.signal__name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg);
+}
+
+.signal__desc {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--fg-muted);
+}
+
+.signal__tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  transition: color 0.35s linear;
+}
+
+html.js .panel.is-live .signal__tag,
+html.js .panel.is-done .signal__tag {
+  color: var(--good);
+}
+
+.panel__foot {
+  margin-top: auto;
+  padding-top: 11px;
+  border-top: 1px solid var(--border-faint);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.foot {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.foot__key {
+  flex: none;
+  width: 42px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.foot__key--warn {
+  color: var(--warn);
+}
+
+.foot__val {
+  font-size: var(--text-xs);
+  color: var(--fg-muted);
+}
+
+/* Chat -------------------------------------------------------------------- */
+
+.chat {
+  position: absolute;
+  left: 50%;
+  top: 7%;
+  width: 35.5%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  /* Deeper and bluer than --card: the chat is the customer's application, not
+     one of Alphe's own panels, and the tint is what separates them. */
+  background: #060d18;
+  border: 1px solid rgba(81, 162, 255, 0.3);
+  border-radius: 26px;
+  padding: 15px 16px 14px;
+  z-index: 3;
+}
+
+.chat__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(81, 162, 255, 0.14);
+}
+
+.chat__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  flex: none;
+}
+
+.chat__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.chat__body {
+  height: 380px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.chat__body::-webkit-scrollbar {
+  display: none;
+}
+
+html.js .chat__item {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 0.45s var(--ease-out),
+    transform 0.45s var(--ease-out);
+}
+
+html.js .chat__item.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+html.reduced-motion .chat__item {
+  transform: none;
+}
+
+/* The customer's own words, so they sit on the right in a raised bubble. */
+.chat__ask {
+  margin-left: auto;
+  max-width: 88%;
+  padding: 10px 13px;
+  border-radius: 14px 14px 4px 14px;
+  background: rgba(81, 162, 255, 0.14);
+  border: 1px solid rgba(81, 162, 255, 0.22);
+  font-size: var(--text-sm);
+  color: var(--fg);
+}
+
+.chat__say {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+}
+
+.chat__say--last {
+  color: var(--fg);
+}
+
+.chat__status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.chat__status::after {
+  content: '…';
+}
+
+/* A slow brighten on the label rather than a spinner: it says "still working"
+   without adding a second moving thing to a section that already has six.
+   Deliberately a colour pulse and not a shimmer — a background-clip sweep needs
+   transparent text, and transparent text is a contrast failure on every frame
+   an auditor happens to sample. Both ends of this ramp pass AA. */
+html.js:not(.reduced-motion) .chat__item.is-working .chat__status {
+  animation: chat-pulse 1.7s var(--ease-in-out) infinite;
+}
+
+@keyframes chat-pulse {
+  0%,
+  100% {
+    color: var(--fg-dim);
+  }
+  50% {
+    color: var(--fg);
+  }
+}
+
+.chat__composer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(81, 162, 255, 0.14);
+}
+
+.chat__placeholder {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--fg-dim);
+}
+
+.chat__composer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.chat__plus {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  flex: none;
+}
+
+.chat__model {
+  padding: 5px 9px 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-muted);
+  transition: color 0.35s linear;
+}
+
+html.js .chat.is-routed .chat__model {
+  color: var(--brand);
+  border-color: rgba(81, 162, 255, 0.34);
+}
+
+.chat__send {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #04070c;
+  font-size: var(--text-sm);
+  flex: none;
+}
+
+/* Candidates -------------------------------------------------------------- */
+
+/* Stage-scoped, because the rule that places every panel is itself scoped to
+   the stage and would otherwise outrank a bare `.panel--candidates` on left —
+   which put the whole right column back on top of the classifier. */
+.console__stage .panel--candidates,
+.console__stage .panel--dispatch,
+.console__stage .panel--policy {
+  left: 86.3%;
+}
+
+.panel--candidates {
+  top: 7%;
+  height: 174px;
+}
+
+.cand {
+  list-style: none;
+  margin: 11px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cand__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius);
+  transition:
+    border-color 0.35s linear,
+    background-color 0.35s linear;
+}
+
+html.js .panel.is-live .cand__row--won,
+html.js .panel.is-done .cand__row--won {
+  border-color: rgba(74, 222, 128, 0.3);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.cand__name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg);
+}
+
+.cand__price {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+  text-align: right;
+}
+
+.cand__state {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+/* Held back until the panel has actually priced. A verdict that is already
+   green two beats before the router reaches it tells the reader the ending and
+   makes the rest of the run decoration. Gated on html.js, so with scripting off
+   the finished state is what shows. */
+.cand__state--won {
+  color: var(--good);
+  transition: color 0.35s linear;
+}
+
+html.js .cand__state--won {
+  color: var(--fg-dim);
+}
+
+html.js .panel.is-live .cand__state--won,
+html.js .panel.is-done .cand__state--won {
+  color: var(--good);
+}
+
+/* Dispatch ---------------------------------------------------------------- */
+
+.panel--dispatch {
+  top: 38%;
+  height: 174px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dispatch__call {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 1px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  min-width: 0;
+}
+
+.dispatch__verb {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--brand);
+  flex: none;
+}
+
+.dispatch__path {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dispatch__kv {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.dispatch__kv div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dispatch__kv dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.dispatch__kv dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--fg);
+}
+
+/* Same rule as the winning candidate: the response has not come back yet. */
+.dispatch__ok {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--good);
+  transition: color 0.35s linear;
+}
+
+html.js .dispatch__ok {
+  color: var(--fg-dim);
+}
+
+html.js .panel.is-live .dispatch__ok,
+html.js .panel.is-done .dispatch__ok {
+  color: var(--good);
+}
+
+/* Policy ------------------------------------------------------------------ */
+
+.panel--policy {
+  top: 71%;
+}
+
+.policy {
+  margin: 11px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.policy div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--border-faint);
+}
+
+.policy div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.policy dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+}
+
+.policy dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg);
+}
+
+/* Call to action ---------------------------------------------------------- */
+
+.panel--cta {
+  top: 71%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.panel__label--cta {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  letter-spacing: var(--tracking-tight);
+  text-transform: none;
+  color: var(--fg);
+}
+
+/* Below the drawing surface's usable width the panels stop being a diagram and
+   become a list. The wires go with the geometry — there is nothing left for
+   them to connect. */
+@media (max-width: 1180px) {
+  .console__stage {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 28px;
+    overflow: visible;
+  }
+
+  .console__wires {
+    display: none;
+  }
+
+  /* relative, not static: the panels stop being placed but stay the containing
+     block for the intake layer, which would otherwise size itself to the whole
+     stage. left has to go with it — static ignores it, relative does not, and
+     the desktop placement would offset each card by its own column position. */
+  .console__stage .panel,
+  .chat {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    transform: none;
+  }
+
+  .chat {
+    order: -1;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Shorter than the desktop window, not auto. A transcript let out to its
+     full height prints the ending — "12,000 tagged, 341 escalated, $11.42
+     against $412" — above the three cards that are supposed to earn it, so
+     the reader gets the answer before the work. Fixed, it stays an app window
+     the run scrolls down; console.js already follows it with scrollTo. */
+  .chat__body {
+    height: 240px;
+  }
+
+  .panel--classify {
+    gap: 12px;
+  }
+
+  /* Two lines rather than an ellipsis. The query is the whole premise of the
+     run — "tag 12,000 tickets by intent" cut to "tag 12,000 tick…" leaves the
+     five cards below answering a question the reader never got to read. */
+  .panel__query {
+    flex-wrap: wrap;
+  }
+
+  .panel__query-text {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  /* The wires went with the geometry, so the flow gets said in the stack
+     instead: a rule in the gap above each card the router actually touches,
+     lit by the same is-live / is-done the wires were drawn by. Policy and the
+     CTA are asides and get none — they are not steps in the call. */
+  .console__stage .panel--classify::before,
+  .console__stage .panel--candidates::before,
+  .console__stage .panel--dispatch::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -15px;
+    width: 1px;
+    height: 15px;
+    background: var(--border);
+  }
+
+  html.js .console__stage .panel--classify::before,
+  html.js .console__stage .panel--candidates::before,
+  html.js .console__stage .panel--dispatch::before {
+    background: var(--border-faint);
+    transition: background-color 0.45s var(--ease-out);
+  }
+
+  html.js .console__stage .panel.is-live::before,
+  html.js .console__stage .panel.is-done::before {
+    background: var(--brand);
+  }
+}
+
+/* Demo -------------------------------------------------------------------- */
+/* Four real jobs replayed one at a time. The picker is a column of buttons on
+   the desktop and the same buttons as a snapping row on a phone — one list, two
+   shapes, so there is only ever one set of controls to keep in sync.
+
+   Every hidden or undrawn state is gated on html.js. With scripting off the
+   first run is already written out in full, the beam never spins, and the
+   selected card falls back to a plain brand border. */
+
+/* Head above, picker and panel below it with their tops on the same line. The
+   head used to live inside the left column, which pushed the four cards half a
+   panel down the page and left the right column ending in dead space.
+
+   stretch, not start: the two columns are one instrument, and a picker that
+   stops eighty pixels short of the panel leaves an L of dead space in the
+   bottom-left corner. The cards divide the panel's height between them instead
+   and the panel's transcript absorbs any slack the other way. */
+.demo__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: 40px;
+  align-items: stretch;
+}
+
+.demo__picker {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The picker's title bar. Same height and same rule as .demo__bar opposite, so
+   the columns open on one line — the height is set here rather than left to the
+   type because the two bars carry different faces at different sizes. */
+.demo__picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* 49, not 48: the bar opposite is a 20px line on 15px of panel padding over a
+     12px gap and a border. Measured, not guessed — the two rules have to be one
+     line across the gutter. */
+  height: 49px;
+  padding: 0 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.demo__picker-label {
+  font-size: var(--text-sm);
+}
+
+.demo__picker-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.demo__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 auto;
+  padding-top: 16px;
+}
+
+/* Equal shares of whatever the panel leaves, so the four cards start under the
+   rule and finish level with the composer. */
+.demo__list > li {
+  flex: 1 1 0;
+  display: flex;
+}
+
+.demo__card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  column-gap: 15px;
+  row-gap: 7px;
+  width: 100%;
+  padding: 15px 17px 16px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+  /* Literal fallback so the conic-gradient below still parses where @property
+     is unsupported. Where it is supported the animation overrides it. */
+  --demo-beam: 0deg;
+}
+
+/* An index, not decoration: it gives the column a left edge to read down and
+   names each card in one glyph, which is what the transcript needs when the
+   route it is replaying has scrolled the card out of view on a phone. */
+.demo__card-no {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  align-self: center;
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-mono);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  /* dim, not faint: faint is a hairline colour for rules and it drops a 13px
+     glyph to 1.8:1 on the card. */
+  color: var(--fg-dim);
+  transition: color 0.3s var(--ease-out);
+}
+
+.demo__card[aria-pressed='true'] .demo__card-no {
+  color: var(--brand);
+}
+
+.demo__card:hover {
+  background: var(--card-hover);
+  border-color: var(--border-strong);
+}
+
+.demo__card[aria-pressed='true'] {
+  background: var(--card-hover);
+  border-color: rgba(81, 162, 255, 0.32);
+}
+
+.demo__card-tags,
+.demo__card-title,
+.demo__card-sub {
+  grid-column: 2;
+  position: relative;
+  z-index: 2;
+}
+
+.demo__card-tags {
+  display: flex;
+  gap: 6px;
+}
+
+.demo__card-tags span {
+  padding: 3px 6px 2px;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  line-height: 1;
+  transition: color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+}
+
+.demo__card[aria-pressed='true'] .demo__card-tags span {
+  color: var(--brand);
+  border-color: rgba(81, 162, 255, 0.28);
+}
+
+.demo__card-title {
+  font-size: var(--text-base);
+  line-height: 1.35;
+  color: var(--fg-muted);
+  transition: color 0.3s var(--ease-out);
+}
+
+.demo__card[aria-pressed='true'] .demo__card-title {
+  color: var(--fg);
+}
+
+.demo__card-sub {
+  font-size: var(--text-sm);
+  color: var(--fg-dim);
+}
+
+/* Beam ------------------------------------------------------------------- */
+/* One registered angle drives both the ring and its bloom, so the two stay in
+   phase without a second animation. inherits must stay true: the ::after reads
+   the value the card is animating. */
+
+@property --demo-beam {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: true;
+}
+
+@keyframes demo-beam-spin {
+  to {
+    --demo-beam: 360deg;
+  }
+}
+
+html.js .demo__card[aria-pressed='true'] {
+  animation: demo-beam-spin 2.4s linear infinite;
+}
+
+.demo__card::after {
+  content: '';
+}
+
+.demo__card::after,
+.demo__bloom {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--demo-beam),
+    transparent 0deg,
+    transparent 58deg,
+    rgba(81, 162, 255, 0.85) 86deg,
+    #d3e6ff 96deg,
+    rgba(81, 162, 255, 0.85) 106deg,
+    transparent 134deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease-out);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* The bloom is the same ring blurred. Blurring a ring rather than a filled disc
+   keeps the glow at the edge instead of washing the card interior. */
+.demo__bloom {
+  inset: -2px;
+  padding: 2px;
+  border-radius: 16px;
+  filter: blur(7px);
+  z-index: 0;
+}
+
+html.js .demo__card[aria-pressed='true']::after {
+  opacity: 1;
+}
+
+html.js .demo__card[aria-pressed='true'] .demo__bloom {
+  opacity: 0.5;
+}
+
+html.reduced-motion .demo__card {
+  animation: none;
+}
+
+html.reduced-motion .demo__card::after,
+html.reduced-motion .demo__bloom {
+  display: none;
+}
+
+html.reduced-motion .demo__card[aria-pressed='true'] {
+  border-color: var(--brand);
+}
+
+/* Panel ------------------------------------------------------------------ */
+
+.demo__panel {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 16px 14px;
+  border: 1px solid rgba(81, 162, 255, 0.3);
+  border-radius: 20px;
+  background: #060d18;
+}
+
+.demo__bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(81, 162, 255, 0.14);
+}
+
+.demo__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  flex: none;
+}
+
+.demo__bar-title {
+  font-size: var(--text-sm);
+}
+
+.demo__bar-meta {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+}
+
+/* A floor, not a content height: the panel is beside a column of cards, and a
+   box that changes height every beat drags the whole grid with it. The floor is
+   what stops the transcript shrinking between runs; the flex is what lets the
+   panel take the slack when the grid row is taller than the panel needs, so the
+   spare height goes into the transcript instead of under the composer. */
+.demo__body {
+  flex: 1 1 auto;
+  min-height: 392px;
+  padding: 16px 2px 2px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.demo__body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Anchored to the bottom so the transcript grows upward the way a real one
+   does. An auto margin rather than justify-content: an auto margin resolves to
+   zero once the content is taller than the box, so a long run still scrolls
+   instead of having its first lines clipped out of reach. */
+.demo__run {
+  margin-top: auto;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo__run[hidden] {
+  display: none;
+}
+
+/* Nothing can un-hide the other three transcripts when the script never runs,
+   so without JS all four are shown stacked. Longer than the design intends,
+   but a picker that cannot pick is worse than a page that is a little long,
+   and the runs are the substance of this section rather than decoration. */
+html:not(.js) .demo__run[hidden] {
+  display: flex;
+}
+
+html.js .demo__panel [data-step] {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
+}
+
+html.js .demo__panel [data-step].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+html.reduced-motion .demo__panel [data-step] {
+  transform: none;
+}
+
+/* The operator's own words, so they sit on the right in a raised bubble. */
+.demo__ask {
+  margin-left: auto;
+  max-width: 88%;
+  padding: 10px 13px;
+  border-radius: 14px 14px 4px 14px;
+  border: 1px solid rgba(81, 162, 255, 0.22);
+  background: rgba(81, 162, 255, 0.14);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.demo__say {
+  max-width: 92%;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--fg-muted);
+}
+
+.demo__tool {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--border-faint);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.35s var(--ease-out), background 0.35s var(--ease-out);
+}
+
+.demo__tool-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+  transition: color 0.35s var(--ease-out);
+}
+
+.demo__tool-note {
+  min-width: 0;
+  font-size: 11px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo__tool-state {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+  text-align: right;
+  white-space: nowrap;
+}
+
+html.js .demo__tool.is-working {
+  border-color: rgba(81, 162, 255, 0.28);
+  background: rgba(81, 162, 255, 0.05);
+}
+
+html.js .demo__tool.is-working .demo__tool-name {
+  color: var(--brand);
+}
+
+/* An overlay sweep, not a background-clip on the text: clipping the fill makes
+   the glyphs transparent and the row fails contrast on most frames. This leaves
+   every character fully opaque and moves a tint across it. */
+html.js:not(.reduced-motion) .demo__tool.is-working::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 22%,
+    rgba(81, 162, 255, 0.14) 50%,
+    transparent 78%
+  );
+  transform: translateX(-100%);
+  animation: demo-sweep 1.6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes demo-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.demo__receipt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(74, 222, 128, 0.22);
+  border-radius: 10px;
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.demo__receipt-key {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--good);
+  flex: none;
+}
+
+.demo__receipt-val {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
+.demo__composer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(81, 162, 255, 0.14);
+}
+
+.demo__placeholder {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--fg-dim);
+}
+
+.demo__composer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.demo__plus {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  flex: none;
+}
+
+.demo__model {
+  padding: 5px 9px 4px;
+  border: 1px solid rgba(81, 162, 255, 0.34);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-mono);
+  color: var(--brand);
+}
+
+.demo__send {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #04070c;
+  font-size: var(--text-sm);
+  flex: none;
+}
+
+/* Below two comfortable columns the picker stops being a list and becomes a
+   rail. The negative margin only reaches the container's own gutter, so the
+   rail meets the screen edge without widening the document. */
+@media (max-width: 1040px) {
+  .demo__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+
+  /* The head stays: on a phone it is the only thing that says there are four of
+     these and that they scroll sideways. */
+  .demo__picker-head {
+    height: 42px;
+  }
+
+  .demo__list {
+    flex-direction: row;
+    gap: 8px;
+    margin-inline: calc(var(--gutter) * -1);
+    padding: 14px var(--gutter) 2px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    /* The snapport is the padding box, so without this the first card snaps to
+       x=0 — flush against the screen edge, a gutter left of the head above it,
+       and the row already scrolled 20px when it looks like it has not. */
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .demo__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .demo__list > li {
+    flex: 0 0 auto;
+    max-width: min(300px, 76vw);
+    scroll-snap-align: start;
+  }
+
+  .demo__card {
+    height: 100%;
+  }
+
+  /* Left, not centred. Centring left the panel indented under a rail and a head
+     that both run to the container edge, so the one column read as two. */
+  .demo__panel {
+    width: 100%;
+    max-width: 760px;
+    margin-inline: 0;
+  }
+
+  /* No column beside it here, so the floor drops to the tallest run rather than
+     the height the cards wanted. Measured: 326 for the migration replay. */
+  .demo__body {
+    min-height: 352px;
+  }
+}
+
+@media (max-width: 560px) {
+  .demo__body {
+    min-height: 360px;
+  }
+
+  .demo__ask,
+  .demo__say {
+    max-width: 100%;
+  }
+
+  /* Two rows rather than three: the note is the part that needs the width, so
+     it drops under a name/state pair that still shares one line. */
+  .demo__tool {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .demo__tool-name {
+    grid-area: 1 / 1;
+  }
+
+  .demo__tool-state {
+    grid-area: 1 / 2;
+  }
+
+  .demo__tool-note {
+    grid-area: 2 / 1 / 3 / -1;
+    white-space: normal;
+  }
+}
+
+/* Showcase rows ----------------------------------------------------------- */
+/* Copy on one side, a drawn diagram on the other. Named showcase rather than
+   feature because .feature is already the platform page's row layout and it
+   sets display:grid on the section itself.
+
+   The diagrams are inline SVG in the page's own coordinate space rather than
+   images, so they inherit the palette, the mono face and the reduced-motion
+   switch for free. */
+
+.showcase__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 80px;
+  align-items: center;
+}
+
+.showcase__copy,
+.showcase__figure {
+  min-width: 0;
+}
+
+/* Visual order only. The copy stays first in the DOM either way, so the reading
+   and tab order never depend on which side the drawing is on. */
+.showcase--flip .showcase__copy {
+  order: 2;
+}
+
+.showcase--flip .showcase__figure {
+  order: 1;
+}
+
+.showcase__title {
+  margin-top: 24px;
+  font-size: var(--text-4xl);
+  max-width: 20ch;
+}
+
+.showcase__lede {
+  margin-top: 20px;
+  font-size: var(--text-md);
+  color: var(--fg-muted);
+  max-width: 46ch;
+}
+
+.showcase__list {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 46ch;
+}
+
+.showcase__list li {
+  position: relative;
+  padding-left: 26px;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--fg-muted);
+}
+
+/* Same 5px brand square the eyebrow uses, so the two marks on a row read as one
+   system rather than two bullet styles. */
+.showcase__list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  background: var(--brand);
+}
+
+.showcase__cta {
+  margin-top: 30px;
+}
+
+.wsvg,
+.svsvg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Workspaces diagram ------------------------------------------------------ */
+
+.wsvg__box,
+.wsvg__card {
+  fill: var(--card);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.wsvg__box--core {
+  stroke: rgba(81, 162, 255, 0.42);
+}
+
+/* The mark ships dark-on-transparent, for light surfaces. Both diagrams draw it
+   on a dark card, so it is inverted the same way the reach plate inverts it. */
+.wsvg__logo,
+.svsvg__logo {
+  filter: invert(1);
+}
+
+.wsvg__stem,
+.wsvg__edge {
+  stroke: var(--border-strong);
+  stroke-width: 1.1;
+}
+
+.wsvg__tick {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--fg-dim);
+}
+
+/* The typed request. Smaller than the lane labels on purpose — it is the thing
+   the user said, and the drawing is about what Alphe does with it. */
+.wsvg__query {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  fill: var(--fg-muted);
+}
+
+/* The lane's kind of work, drawn rather than initialled: I, D and C were three
+   letters that only mean anything once you have read the label beside them.
+   Ink is the same near-black the letters were — the disc under it is a saturated
+   gradient, and a white line on that is the one thing on the drawing that glows.
+   Stroke, not fill: Lucide's art is outline-only. */
+.wsvg__icon {
+  fill: none;
+  stroke: #04070c;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wsvg__name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  fill: var(--fg);
+}
+
+.wsvg__chip {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.wsvg__chip-t {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--fg-dim);
+}
+
+.wsvg__chip--a {
+  fill: rgba(81, 162, 255, 0.08);
+  stroke: rgba(81, 162, 255, 0.3);
+}
+
+.wsvg__chip-t--a {
+  fill: var(--brand);
+}
+
+.wsvg__chip--b {
+  fill: rgba(74, 222, 128, 0.08);
+  stroke: rgba(74, 222, 128, 0.3);
+}
+
+.wsvg__chip-t--b {
+  fill: var(--good);
+}
+
+.wsvg__chip--c {
+  fill: rgba(255, 138, 91, 0.08);
+  stroke: rgba(255, 138, 91, 0.3);
+}
+
+.wsvg__chip-t--c {
+  fill: var(--warn);
+}
+
+/* pathLength="1" normalises the three lanes to a single unit, so one dash pair
+   travels all of them at the same speed regardless of their real length. */
+.wsvg__pulse {
+  stroke: var(--brand);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.14 1;
+  stroke-dashoffset: 0.14;
+  animation: ws-pulse 3.2s linear infinite;
+}
+
+.wsvg__lane:nth-of-type(2) .wsvg__pulse {
+  animation-delay: 0.4s;
+}
+
+.wsvg__lane:nth-of-type(3) .wsvg__pulse {
+  animation-delay: 0.8s;
+}
+
+@keyframes ws-pulse {
+  from {
+    stroke-dashoffset: 0.14;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* Swap diagram ------------------------------------------------------------ */
+/* Three model chips ride one slot on a single 7.5s cycle, each offset by a
+   third. Only the chip changes — the stem, the core and the six leaves below it
+   never move, which is the whole point of the section. */
+
+.svsvg__model rect {
+  fill: var(--card);
+  stroke: rgba(81, 162, 255, 0.34);
+  stroke-width: 1.2;
+}
+
+.svsvg__model text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  fill: var(--fg);
+}
+
+.svsvg__model {
+  opacity: 0;
+  animation: sv-model 7.5s var(--ease-in-out) infinite;
+  animation-delay: calc(var(--i) * 2.5s);
+}
+
+@keyframes sv-model {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  6%,
+  27% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  33.33%,
+  100% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+.svsvg__stem {
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+}
+
+.svsvg__edge {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.svsvg__core {
+  fill: var(--card);
+  stroke: rgba(81, 162, 255, 0.42);
+  stroke-width: 1.2;
+}
+
+.svsvg__stem-pulse,
+.svsvg__spark {
+  stroke: var(--brand);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-dasharray: 0.2 1;
+  stroke-dashoffset: 0.2;
+  animation: sv-travel 2.6s linear infinite;
+}
+
+.svsvg__spark {
+  animation-delay: calc(var(--i) * 0.16s);
+}
+
+@keyframes sv-travel {
+  from {
+    stroke-dashoffset: 0.2;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+.svsvg__leaf rect {
+  fill: var(--card);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.svsvg__leaf text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  fill: var(--fg);
+}
+
+.svsvg__leaf .svsvg__leaf-kind {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  fill: var(--fg-dim);
+}
+
+html.reduced-motion .wsvg__pulse,
+html.reduced-motion .svsvg__stem-pulse,
+html.reduced-motion .svsvg__spark {
+  animation: none;
+  opacity: 0;
+}
+
+/* With the cycle stopped the slot would be empty, so the first chip holds it. */
+html.reduced-motion .svsvg__model {
+  animation: none;
+}
+
+html.reduced-motion .svsvg__model:nth-of-type(1) {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .showcase__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 44px;
+  }
+
+  .showcase--flip .showcase__copy,
+  .showcase--flip .showcase__figure {
+    order: 0;
+  }
+
+  .showcase__title {
+    max-width: 20ch;
+  }
+
+  .showcase__figure {
+    width: 100%;
+    max-width: 560px;
+  }
+}
+
+/* Below this the drawings are rendering at roughly two thirds scale, so the
+   labels are sized up in user units to land back at a readable pixel size and
+   the secondary line drops rather than shrink past legibility. */
+@media (max-width: 640px) {
+  .wsvg__tick {
+    font-size: 11px;
+  }
+
+  /* The query box is fixed in user units, so this can only go up by the ratio
+     the box has slack for — a point, not the three the other labels take. */
+  .wsvg__query {
+    font-size: 9.5px;
+  }
+
+  /* The icon keeps its share of the disc — it is the line weight that stops
+     carrying at two thirds scale, not the size. */
+  .wsvg__icon {
+    stroke-width: 2.4;
+  }
+
+  /* 13, not 14: the lane has 118 user units between the name at x=214 and the
+     price chip at x=332, and "Images / video" set in 14px mono is 117.6 of
+     them. It ran into the pill. */
+  .wsvg__name {
+    font-size: 13px;
+  }
+
+  .wsvg__chip-t {
+    font-size: 11px;
+  }
+
+  .svsvg__model text {
+    font-size: 17px;
+  }
+
+  .svsvg__leaf text {
+    font-size: 15px;
+    transform: translateY(5px);
+  }
+
+  .svsvg__leaf .svsvg__leaf-kind {
+    display: none;
+  }
+}
+
+/* Tools (per-request selection) -------------------------------------------- */
+/*
+   Deliberately not a second bordered grid. #coverage is one already, and two of
+   them stacked reads as a spec sheet — so the chips sit loose in a field with no
+   cell walls, and the only structure that ever appears is the structure the
+   selector puts there: a beam across the field, and plates under the tools it
+   kept.
+
+   The wave is not animated. Every chip carries --d, the fraction of the field's
+   width it sits at, written by the module on resize; the state change is one
+   class flip on the panel and each chip spends its own --d as a transition
+   delay, so the change crosses the field at the speed of the beam without a
+   single frame of JS behind it.
+
+   The chain the selection produces is written on the chips, not under them: a
+   kept tool carries the position it runs at as a corner numeral. It used to be
+   a bar of 01/02/03 steps below the field, which made the reader look away from
+   the answer to read the answer.
+*/
+
+.tools {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-raised);
+  overflow: hidden;
+}
+
+.tools__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-faint);
+}
+
+.tools__ask {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--fg);
+}
+
+/* The same 5px brand square the eyebrows carry, standing in for a prompt. */
+.tools__caret {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  background: var(--brand);
+}
+
+.tools__field {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 20px;
+}
+
+/* 30% wide, so -100% parks it just off the left edge and 333% carries its left
+   edge exactly to the right one. */
+.tools__scan {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--brand-dim), transparent);
+}
+
+.tools.is-scanning .tools__scan {
+  animation: tools-scan 720ms var(--ease-out);
+}
+
+@keyframes tools-scan {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(333.33%);
+  }
+}
+
+.tool {
+  /* Overridden per chip with the brand's own colour. The fallback is for the
+     wordmarks, which have no mark in the icon set and so no hex to borrow. */
+  --tool: var(--fg);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition:
+    opacity 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
+  transition-delay: calc(var(--d, 0) * 640ms);
+}
+
+/* The brand wash under a kept tool. A pseudo-element rather than a mixed
+   background-color because the tint has to be the brand's colour at a tenth of
+   itself, and there is no way to say that about a custom property without
+   colour maths the older Safaris on this site's floor do not have. */
+.tool::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--tool);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  transition-delay: calc(var(--d, 0) * 640ms);
+}
+
+/* Positioned, so they paint above the wash instead of under it. */
+.tool__glyph,
+.tool__name {
+  position: relative;
+}
+
+.tool__glyph {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  fill: var(--tool);
+}
+
+.tool__name {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  white-space: nowrap;
+  transition: color 0.4s var(--ease-out);
+  transition-delay: calc(var(--d, 0) * 640ms);
+}
+
+/* No mark exists for these, so the name is the mark: set tighter and heavier
+   than the labels beside it so it reads as a wordmark rather than as a caption
+   that lost its logo. */
+.tool--word .tool__name {
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+/* The order this tool runs at, set by the module as a quoted string in --n.
+   Absolutely positioned and never sized, so a chip that wins a number is
+   exactly as wide as the same chip that did not — the field must not reflow
+   under a selection it is meant to be showing. */
+.tool::after {
+  content: var(--n, '');
+  position: absolute;
+  top: -6px;
+  right: -3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--tracking-mono);
+  line-height: 1;
+  color: var(--brand);
+  opacity: 0;
+  transform: translate3d(0, 3px, 0);
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out);
+  transition-delay: calc(var(--d, 0) * 640ms);
+}
+
+/* Pinned to the right edge of whatever line it lands on, so the count reads as
+   the field's own caption rather than as the forty-ninth chip. */
+.tool--more {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  border-color: var(--border-faint);
+}
+
+/* Nothing dims until the module is actually driving the section, so a reader
+   who never reaches it — or who has scripting off — gets the whole catalogue at
+   full strength. */
+.tools.is-live .tool {
+  opacity: 0.42;
+}
+
+/* The count is not a candidate — it is the caption that says how much of the
+   catalogue is off-screen — so it never joins the dim. Dimmed on top of
+   --fg-faint it fell to 1.9:1, well under AA for 12px. */
+.tools.is-live .tool--more {
+  opacity: 1;
+}
+
+.tools.is-live .tool.is-picked {
+  opacity: 1;
+  border-color: var(--border-strong);
+}
+
+.tools.is-live .tool.is-picked::before {
+  opacity: 0.1;
+}
+
+.tools.is-live .tool.is-picked .tool__name {
+  color: var(--fg);
+}
+
+.tools.is-live .tool.is-picked::after {
+  opacity: 1;
+  transform: none;
+}
+
+/* With motion off the selection is a fact, not an event: no beam, and every
+   delay collapses so the field answers in one step. */
+html.reduced-motion .tools__scan {
+  display: none;
+}
+
+html.reduced-motion .tool,
+html.reduced-motion .tool::before,
+html.reduced-motion .tool__name,
+html.reduced-motion .tool::after {
+  transition-delay: 0s;
+  transition-duration: 0.2s;
+}
+
+@media (max-width: 600px) {
+  .tools__bar,
+  .tools__field {
+    padding: 14px;
+  }
+
+  .tools__field {
+    gap: 6px;
+  }
+
+  .tool {
+    gap: 7px;
+    padding: 7px 10px;
+  }
+
+  .tool__glyph {
+    width: 16px;
+    height: 16px;
+  }
+
+  .tool__name {
+    font-size: var(--text-xs);
+  }
+}

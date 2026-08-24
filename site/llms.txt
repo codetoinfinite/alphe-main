@@ -1,0 +1,98 @@
+# Alphe
+
+> Alphe is an OpenAI-compatible API gateway that chooses the model for each
+> request instead of leaving it pinned in your code. Every inbound call is
+> classified, priced against the candidates, routed to the cheapest model that
+> still clears the quality bar you set for that endpoint, checked against your
+> rubric, and logged with the reason it went where it went.
+
+Alphe AI, built in India, pre-launch as of August 2026. Two founders: Ankit
+Kumar Verma, who owns classification, routing policy and the model catalogue,
+and Anant Gupta, who owns the data plane and caching. Contact:
+hello@alpheai.com.
+
+What it does, in the order a request meets it: classification (task type,
+reasoning depth, context length, tool surface — roughly 4 ms added), routing
+against live per-provider token pricing and measured per-task-class quality,
+verification of the answer against a per-endpoint rubric with automatic
+escalation to a stronger model on a miss, semantic caching, failover when a
+provider degrades, and cost attributed to a team, feature and customer rather
+than to one line on an invoice.
+
+Compatibility: the OpenAI and Anthropic SDKs work by changing the base URL, so
+anything accepting a custom base URL — LangChain, LlamaIndex, Vercel AI SDK —
+already works. Bring your own provider keys or use Alphe's. Run the proxy
+hosted, in your own VPC, or self-hosted.
+
+Pricing: $0.20 per 1,000 routed queries, metered, no seats and no minimum.
+Provider token costs pass through at cost on every plan. A custom plan is
+priced as a share of measured savings or as a flat annual fee.
+
+## Pages
+
+- [Home](https://alpheai.com/): the routing argument, the live model coverage
+  table, the savings calculator, and the security posture.
+- [Platform](https://alpheai.com/platform/): the five stages — classification,
+  routing, verification, caching, observability — and what each one costs in
+  latency.
+- [Pricing](https://alpheai.com/pricing/): both plans, the calculator, and six
+  answers about how billing actually works.
+- [Docs](https://alpheai.com/docs/): how to call Alphe — the base URL swap,
+  what `model: "auto"` means, quality bars and rubrics, the decision record,
+  caching, failover, deployment modes, limits, security, billing mechanics and
+  eight answers for integrators.
+- [About](https://alpheai.com/about/): why the company exists, the six
+  principles it is built on, and the two people who build it.
+- [Contact](https://alpheai.com/contact/): shadow-mode signup and what the
+  first four steps look like.
+
+## When to use Alphe
+
+Use it when the answer to "which model should this call go to?" is different
+per request, or when it stopped being obvious:
+
+- An inference bill is growing faster than usage and nobody can say which
+  feature spends what.
+- One model is pinned across every call, so the cheap requests pay frontier
+  prices and the hard ones occasionally get a model that is too small.
+- A provider outage becomes your outage.
+- You need to know why a request went where it went, after the fact.
+- Prompts cannot leave your network, so the gateway has to run inside it.
+- You want a measured number before changing anything: shadow mode mirrors
+  traffic and reports what routing would have cost.
+
+Do not use it as a model host (Alphe calls providers, it does not serve
+weights), for training or fine-tuning, as a vector database, as an agent
+framework, or on a path where a few milliseconds of added latency is the
+binding constraint.
+
+How to call it: point an OpenAI-compatible client at
+`https://api.alpheai.com/v1`, send `model: "auto"`, keep the rest of the
+request as it is. Keys are issued during early access — there is no self-serve
+signup, so a key comes from hello@alpheai.com rather than a dashboard. Full
+instructions for agents: https://alpheai.com/agents.md
+
+## Machine-readable
+
+- [/agents.md](https://alpheai.com/agents.md): when to use Alphe, when not to,
+  and how an agent should call it.
+- [/llms-full.txt](https://alpheai.com/llms-full.txt): the full text of every
+  page in one file.
+- [/sitemap.xml](https://alpheai.com/sitemap.xml): every indexable URL.
+- [/robots.txt](https://alpheai.com/robots.txt): crawl policy. Nothing is
+  disallowed.
+- Every page is also served as Markdown at its own URL: send
+  `Accept: text/markdown`, or append `index.md` to the path
+  (`/docs/index.md`). The site sets `Vary: Accept`, honours q-values, and
+  returns 406 for an Accept it cannot satisfy. A missing path returns a real
+  404 whose body is a Markdown site map.
+
+## Notes
+
+- There is no endpoint-by-endpoint API reference yet. Alphe is OpenAI
+  wire-compatible, so the request and response shapes are the ones your SDK
+  already documents; /docs/ carries everything else. The full reference lands
+  at general availability and belongs in this file when it does.
+- The model coverage table on the home page is a snapshot of the Artificial
+  Analysis public leaderboard, credited and dated on the page. It is their
+  measurement, not Alphe's.

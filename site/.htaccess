@@ -1,0 +1,178 @@
+# Alphe — Apache / LiteSpeed configuration.
+#
+# This file is the Hostinger half of what vercel.json declares. Hostinger's
+# shared hosting is LiteSpeed reading .htaccess out of public_html; it has never
+# heard of vercel.json, so without this the site deploys with no CSP, no HSTS
+# and no caching and nothing anywhere says so.
+#
+# Four files now describe the same policy — this one for Hostinger, vercel.json
+# for Vercel, serve.mjs for localhost, and negotiate.php for every negotiated
+# response on any of them. `node tools/headers.mjs` fails the build if they
+# drift, which is the only reason it is safe to keep all four.
+#
+# LiteSpeed supports mod_headers, mod_expires, mod_rewrite, ErrorDocument,
+# DirectoryIndex and Options as written. It ignores mod_deflate directives and
+# compresses natively instead, so none are written here.
+
+# Canonical host and scheme ---------------------------------------------------
+# HSTS below tells browsers to never speak http to this host again, which is a
+# promise that has to be kept on the first request too.
+#
+# Both conditions, not just %{HTTPS}: Hostinger terminates TLS in front of the
+# document root on some plans, and a rule that reads only %{HTTPS} redirects a
+# request that already arrived over https straight back to itself.
+RewriteEngine On
+
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# canonical / og:url / sitemap.xml all say https://alpheai.com with no www, so the
+# www host is a duplicate of the whole site rather than a second one.
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+# The AGENTS.md convention spells the file in capitals. This site stores it
+# lowercase next to llms.txt and robots.txt, and Linux tells the two apart, so
+# the capitalised probe is rewritten rather than kept as a second copy that can
+# drift out of step with the first.
+RewriteRule ^AGENTS\.md$ /agents.md [L]
+
+# Markdown content negotiation ------------------------------------------------
+# acceptmarkdown.com: the same URL answers a browser with HTML and an agent with
+# Markdown. site/negotiate.php does the deciding; these rules decide who reaches
+# it, and the answer is "almost nobody".
+#
+# Only the six document routes are listed, and only three kinds of request are
+# handed over: one that names markdown, one whose Accept this site cannot
+# satisfy at all, and one that explicitly refuses HTML with q=0. A browser, curl
+# with no Accept, every asset, and the form's own POST to contact.php (which
+# sends Accept: application/json but is not one of these paths) never touch PHP
+# and are served exactly as they were before.
+#
+# The path is passed as a query parameter and matched against a table in the
+# script. Nothing built from request input ever reaches the filesystem.
+
+# 1. Asked for markdown.
+RewriteCond %{HTTP:Accept} markdown [NC]
+RewriteRule ^(platform/|pricing/|docs/|about/|contact/)?$ /negotiate.php?path=/$1 [L,QSA]
+
+# 2. Accept names something real and this site has none of it -> 406, not HTML.
+RewriteCond %{HTTP:Accept} !^$
+RewriteCond %{HTTP:Accept} !\*/\* [NC]
+RewriteCond %{HTTP:Accept} !text/\* [NC]
+RewriteCond %{HTTP:Accept} !text/html [NC]
+RewriteCond %{HTTP:Accept} !markdown [NC]
+RewriteRule ^(platform/|pricing/|docs/|about/|contact/)?$ /negotiate.php?path=/$1 [L,QSA]
+
+# 3. HTML refused outright with q=0. Honouring a zero is the fourth
+#    acceptmarkdown conformance point.
+RewriteCond %{HTTP:Accept} text/html\s*;\s*q=0(\.0+)?(\s*[,;]|\s*$) [NC]
+RewriteRule ^(platform/|pricing/|docs/|about/|contact/)?$ /negotiate.php?path=/$1 [L,QSA]
+
+# 4. A path that does not exist, asked for as markdown, gets the 404 body as
+#    markdown. Everything else keeps ErrorDocument's static /404.html.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{HTTP:Accept} markdown [NC]
+RewriteRule ^ /negotiate.php?path=/404 [L]
+
+# Routing ---------------------------------------------------------------------
+# Every internal link is written with a trailing slash — /platform/, not
+# /platform. mod_dir already 301s the second to the first and resolves it to
+# index.html, which is the whole of what vercel.json's trailingSlash: true does,
+# so there is no rewrite here to get wrong.
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+# No directory listings, and no following symlinks out of the document root.
+Options -Indexes +SymLinksIfOwnerMatch
+
+# Security headers ------------------------------------------------------------
+# Kept in step with the "/(.*)" block in vercel.json and SECURITY in serve.mjs.
+#
+# `always`, not plain `set`: without it the header is attached to 2xx and 3xx
+# only, and the 404 page — a real page on this site, with the same scripts and
+# the same fonts — would be served with no policy at all.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+
+  # Two representations live at each document URL — see the negotiation rules
+  # above. Without Accept in Vary a CDN hands an agent the HTML it cached for a
+  # browser, which is the "Vary header missing Accept" failure this fixes.
+  Header always set Vary "Accept, Accept-Encoding"
+
+  # Caching ------------------------------------------------------------------
+  # Order is the rule: these sections are applied top to bottom and the last one
+  # to match wins, so the default goes first and the exceptions after it.
+
+  # Nothing here carries a content hash in its name, so nothing here may be held
+  # past an edit. no-cache is not "do not store" — it is "ask first", which is a
+  # 304 on an unchanged file and the new file the moment it changes.
+  <FilesMatch "\.(html|css|js|json|xml|txt|md)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # Self-hosted Geist, one immutable pair of families.
+  <FilesMatch "\.woff2?$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # three.js, pinned at 0.185.1 in assets/vendor/. Matched by name rather than by
+  # being .js in a folder, because .htaccess sections cannot see folders and
+  # "every .js file" would sweep in the site's own modules, which change.
+  <FilesMatch "^three\..*\.js$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Logo, favicons and the social card. A week, not a year: these are unhashed
+  # and do get replaced. svg is in the list because favicon.svg is the icon most
+  # current browsers actually pick, and vercel.json already caches all of
+  # /media/ for the same week.
+  <FilesMatch "\.(png|jpe?g|webp|gif|ico|svg)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
+
+# Content types ---------------------------------------------------------------
+# LiteSpeed knows all of these already. They are written down because the cost
+# of being wrong is a font that silently fails to load behind font-src 'self'.
+#
+# The charset rides inside the media type rather than arriving from AddCharset,
+# and that is not a style choice. AddCharset is an Apache directive with no
+# LiteSpeed counterpart, and LiteSpeed ignores directives it does not implement
+# without saying so: the live site served every .md, .txt and .xml as bare
+# text/plain and text/markdown while the same files under Apache carried
+# charset=utf-8, which is how it was found. A parameter written into AddType
+# survives on both, because both simply hand the string back as Content-Type.
+# Written unquoted and unspaced — the form Apache's own documentation uses for
+# a media-type parameter — so neither parser has to agree about quoting.
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType text/javascript;charset=utf-8 .js .mjs
+  AddType image/svg+xml .svg
+  AddType application/manifest+json;charset=utf-8 .webmanifest
+  AddType text/markdown;charset=utf-8 .md
+  AddType application/xml;charset=utf-8 .xml
+  AddType text/css;charset=utf-8 .css
+  AddType application/json;charset=utf-8 .json
+</IfModule>
+
+# The other half of the same problem, and the reason the list above stops where
+# it does: this covers text/html and text/plain — every page served off disk,
+# robots.txt, llms.txt, llms-full.txt, security.txt and the IndexNow key — and
+# it covers nothing else, which is why .md and .xml name their charset above.
+# A Markdown file full of em dashes decoded as latin-1 is mojibake in the one
+# client that cannot see a meta tag, and that client is the one this site is
+# for. Core directive, not mod_mime: LiteSpeed implements this one.
+AddDefaultCharset utf-8
+
+# This file, and anything like it, is server configuration and not content.
+<FilesMatch "^\.ht">
+  Require all denied
+</FilesMatch>

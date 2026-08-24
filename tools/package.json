@@ -1,0 +1,11 @@
+{
+  "name": "alphe-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless-Chrome checks for the Alphe site. Not part of the deployed output.",
+  "devDependencies": {
+    "@lobehub/icons-static-svg": "^1.94.0",
+    "puppeteer-core": "^25.4.0"
+  }
+}

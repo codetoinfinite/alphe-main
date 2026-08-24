@@ -1,0 +1,81 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "outputDirectory": "site",
+  "trailingSlash": true,
+  "rewrites": [
+    { "source": "/AGENTS.md", "destination": "/agents.md" },
+    {
+      "source": "/",
+      "destination": "/index.md",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown([ ]*[;,].*)?" }],
+      "missing": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown[ ]*;[ ]*q=0(\\.0+)?([ ;,].*)?" }]
+    },
+    {
+      "source": "/platform",
+      "destination": "/platform/index.md",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown([ ]*[;,].*)?" }],
+      "missing": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown[ ]*;[ ]*q=0(\\.0+)?([ ;,].*)?" }]
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing/index.md",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown([ ]*[;,].*)?" }],
+      "missing": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown[ ]*;[ ]*q=0(\\.0+)?([ ;,].*)?" }]
+    },
+    {
+      "source": "/docs",
+      "destination": "/docs/index.md",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown([ ]*[;,].*)?" }],
+      "missing": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown[ ]*;[ ]*q=0(\\.0+)?([ ;,].*)?" }]
+    },
+    {
+      "source": "/about",
+      "destination": "/about/index.md",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown([ ]*[;,].*)?" }],
+      "missing": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown[ ]*;[ ]*q=0(\\.0+)?([ ;,].*)?" }]
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.md",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown([ ]*[;,].*)?" }],
+      "missing": [{ "type": "header", "key": "accept", "value": "(.*[ ,])?text/markdown[ ]*;[ ]*q=0(\\.0+)?([ ;,].*)?" }]
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000" },
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
+      ]
+    },
+    {
+      "source": "/assets/fonts/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/vendor/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/media/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    }
+  ]
+}

@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docs | Alphe AI</title>
+    <meta
+      name="description"
+      content="How to call Alphe: swap the base URL, send model auto, and read the routing decision. Quickstart, request model, quality bars, caching, failover, deployment modes, limits and FAQ."
+    />
+    <meta name="theme-color" content="#08090a" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="icon" href="/media/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/media/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
+    <link rel="canonical" href="https://alpheai.com/docs/" />
+    <!-- The Markdown twin of this page, served at this same URL to anything that
+         sends `Accept: text/markdown` — see site/negotiate.php. The link element
+         is here for clients that read the document rather than the headers. -->
+    <link rel="alternate" type="text/markdown" href="/docs/index.md" />
+    <meta property="og:site_name" content="Alphe" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://alpheai.com/docs/" />
+    <meta property="og:title" content="Docs | Alphe AI" />
+    <meta property="og:description" content="How to call Alphe: swap the base URL, send model auto, and read the routing decision. Quickstart, request model, quality bars, caching, failover, deployment modes, limits and FAQ." />
+    <meta property="og:image" content="https://alpheai.com/media/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Docs | Alphe AI" />
+    <meta name="twitter:description" content="How to call Alphe: swap the base URL, send model auto, and read the routing decision. Quickstart, request model, quality bars, caching, failover, deployment modes, limits and FAQ." />
+    <meta name="twitter:image" content="https://alpheai.com/media/og.png" />
+    <!-- Every question below is transcribed from the accordion on this page, and
+         every claim in the article body is one the site already makes. Schema
+         that disagrees with the visible copy is a manual-action risk.
+
+         Unknown script type, so this is a data block and the CSP's script-src
+         never applies to it. Same trick as the home and pricing pages. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "TechArticle",
+            "@id": "https://alpheai.com/docs/#article",
+            "headline": "Alphe documentation",
+            "name": "Alphe documentation",
+            "description": "How to call Alphe: base URL, request model, routing stages, quality bars, caching, failover, observability, deployment modes, limits and billing mechanics.",
+            "url": "https://alpheai.com/docs/",
+            "inLanguage": "en",
+            "dateModified": "2026-08-23",
+            "proficiencyLevel": "Beginner",
+            "about": { "@id": "https://alpheai.com/#software" },
+            "publisher": { "@id": "https://alpheai.com/#organization" },
+            "isPartOf": { "@id": "https://alpheai.com/#website" }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://alpheai.com/docs/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What do I actually change in my code?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The base URL and the API key. Point your OpenAI or Anthropic client at https://api.alpheai.com/v1, send model: \"auto\", and leave the rest of the call exactly as it is. Streaming, tool calls, structured output and vision pass through unchanged."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I get an API key?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Keys are issued during early access; there is no self-serve signup yet. Ask at hello@alpheai.com or through the form at https://alpheai.com/contact/, and you get a key and a shadow configuration back."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I see why a request went where it went?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Every call carries a decision record — task class, reasoning depth, context length, the quality bar it had to clear, the model chosen, the models rejected, the reason, and the dollars saved against your previous pin. It is attached to the trace, so a bad route is explainable after the fact rather than at the time."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What happens when the cheap model gets it wrong?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The output is scored against the endpoint's rubric before it is returned. A miss escalates to a stronger model automatically, under the same request id, and the escalation is logged. The routing table learns from it, so the same class of request does not miss twice. An escalation counts as one billable request, not two."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How much latency does Alphe add?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "About 4 ms to classify and under 8 ms of gateway overhead in total, measured on-path and in-region. These are indicative figures for a pre-launch product, not a published SLA."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can prompts stay inside our network?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. The proxy is a single binary and runs self-hosted or in your own VPC, with the control plane hosted. Regional pinning and data-residency guarantees are part of the custom plan."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What if Alphe itself is unavailable?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The SDK falls back to your provider directly on a configurable timeout, so the gateway cannot become a single point of failure for your product. Self-hosted deployments serve traffic without depending on our control plane."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is there a full API reference?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Not yet. Alphe is OpenAI wire-compatible, so the request and response shapes are the ones your SDK already implements. A complete endpoint-by-endpoint reference lands at general availability; until then this page and hello@alpheai.com are the documentation."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://alpheai.com/docs/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://alpheai.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Docs",
+                "item": "https://alpheai.com/docs/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/geist-sans-latin-400-normal.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/geist-mono-latin-400-normal.woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/sections.css" />
+    <script src="/assets/js/boot.js"></script>
+    <script type="module" src="/assets/js/main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="nav" data-nav>
+      <div class="container nav__inner">
+        <a class="nav__brand" href="/" aria-label="Alphe home">
+          <img class="nav__mark" src="/media/logo.png" alt="" width="22" height="22" />
+          <span class="nav__wordmark">Alphe</span>
+        </a>
+        <button class="nav__toggle" data-nav-toggle aria-label="Menu" aria-expanded="false">
+          <span></span>
+        </button>
+        <nav class="nav__links">
+          <a class="nav__link" href="/platform/">Platform</a>
+          <a class="nav__link" href="/pricing/">Pricing</a>
+          <a class="nav__link" href="/about/">About</a>
+          <a class="btn btn--primary" href="/contact/">Get early access</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <section class="page-head">
+        <canvas
+          class="hero__field hero__field--back"
+          data-particles="back"
+          data-particle-texts="DOCS | v1 | auto"
+          aria-hidden="true"
+        ></canvas>
+        <div class="container">
+          <span class="eyebrow" data-reveal>Docs</span>
+          <h1 class="page-head__title" data-split-lines>One base URL, and the rest is your code.</h1>
+          <p class="page-head__lede" data-reveal data-reveal-stagger="300">
+            Alphe speaks the OpenAI wire format, so there is no SDK to install and no request shape
+            to learn. This page is what an engineer — or
+            <a class="link" href="/agents.md">an agent reading on their behalf</a> — needs to
+            integrate, operate and bill for <a class="link" href="/platform/">the decision layer</a>.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Quickstart</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              Change the base URL. Send <span class="mono">auto</span>. That is the integration.
+            </h2>
+          </div>
+
+          <article class="feature" data-reveal>
+            <div>
+              <h3 class="feature__title">TypeScript, with the OpenAI SDK</h3>
+              <p class="feature__body">
+                The client you already have, pointed somewhere else. Everything the SDK sends —
+                messages, temperature, tools, response format, images — is forwarded to whichever
+                model Alphe picks, and the response comes back in the shape your code already
+                parses.
+              </p>
+              <ul class="feature__list">
+                <li><span class="mono">baseURL</span> is the only line that changes</li>
+                <li><span class="mono">model: "auto"</span> hands the choice to the router</li>
+                <li>Streaming, tool calls, structured output and vision pass through</li>
+                <li>Set <span class="mono">ALPHE_KEY</span> from your environment, never in source</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">route.ts</span>
+                </div>
+                <pre class="code__body"><span class="tok-key">import</span> OpenAI <span class="tok-key">from</span> <span class="tok-str">"openai"</span>;
+
+<span class="tok-key">const</span> client = <span class="tok-key">new</span> <span class="tok-fn">OpenAI</span>({
+  <span class="tok-var">baseURL</span>: <span class="tok-str">"https://api.alpheai.com/v1"</span>, <span class="tok-com">// the only change</span>
+  <span class="tok-var">apiKey</span>: process.env.<span class="tok-var">ALPHE_KEY</span>,
+});
+
+<span class="tok-key">const</span> res = <span class="tok-key">await</span> client.chat.completions.<span class="tok-fn">create</span>({
+  <span class="tok-var">model</span>: <span class="tok-str">"auto"</span>,
+  <span class="tok-var">messages</span>: [{ <span class="tok-var">role</span>: <span class="tok-str">"user"</span>, <span class="tok-var">content</span>: input }],
+});</pre>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature" data-reveal>
+            <div>
+              <h3 class="feature__title">Python, and anything that speaks HTTP</h3>
+              <p class="feature__body">
+                The Python SDK takes the same base URL. So does curl, so does the Anthropic SDK, and
+                so does every framework that lets you name your own endpoint. There is no Alphe
+                package on npm or PyPI to keep in sync with your dependency tree, because there does
+                not need to be one.
+              </p>
+              <ul class="feature__list">
+                <li>Same endpoint, same auth header, same JSON body</li>
+                <li>No wrapper package, no adapter, no fork of your client</li>
+                <li>Works from a Lambda, a worker, a notebook or a shell script</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">quickstart.sh</span>
+                </div>
+                <pre class="code__body"><span class="tok-com"># python</span>
+client = <span class="tok-fn">OpenAI</span>(
+    base_url=<span class="tok-str">"https://api.alpheai.com/v1"</span>,
+    api_key=os.environ[<span class="tok-str">"ALPHE_KEY"</span>],
+)
+
+<span class="tok-com"># curl</span>
+curl https://api.alpheai.com/v1/chat/completions \
+  -H <span class="tok-str">"Authorization: Bearer $ALPHE_KEY"</span> \
+  -H <span class="tok-str">"Content-Type: application/json"</span> \
+  -d <span class="tok-str">'{"model":"auto","messages":[{"role":"user","content":"hi"}]}'</span></pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="request">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>The request</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              What <span class="mono">auto</span> means, and when not to use it.
+            </h2>
+          </div>
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">model: auto</span>
+              <h3 class="tile__title">Let the router decide</h3>
+              <p class="tile__body">
+                The default for anything where the right model differs per request. Alphe classifies
+                the call and sends it to the cheapest model that still clears the quality bar set
+                for that endpoint.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">model: a name</span>
+              <h3 class="tile__title">Pin it, per endpoint</h3>
+              <p class="tile__body">
+                Name a model instead and Alphe sends the call there. Some paths need reproducibility
+                more than they need savings. Pinned endpoints still get caching, failover,
+                attribution and PII redaction.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Endpoints</span>
+              <h3 class="tile__title">One policy each</h3>
+              <p class="tile__body">
+                Policy is set per endpoint, not per account: a support summariser and a contract
+                analyser should not share a quality threshold, a latency budget or a fallback list,
+                and here they do not.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Passthrough</span>
+              <h3 class="tile__title">Your parameters survive</h3>
+              <p class="tile__body">
+                Temperature, max tokens, stop sequences, tool definitions, JSON schemas and images
+                are forwarded to the chosen model. Alphe decides where the request goes, not what is
+                in it.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Streaming</span>
+              <h3 class="tile__title">Tokens arrive as usual</h3>
+              <p class="tile__body">
+                A streamed response streams. The routing decision is made before the first token, so
+                nothing buffers waiting for the router to make up its mind.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Tenancy</span>
+              <h3 class="tile__title">Attribution is a request property</h3>
+              <p class="tile__body">
+                Tag a call with the team, feature and customer it belongs to and the cost follows it
+                into the trace, the budget and the invoice. Unit economics exist without anyone
+                instrumenting them later.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="lifecycle">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Request lifecycle</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              Five things happen between your call and your answer.
+            </h2>
+            <p class="section-lede" data-reveal data-reveal-stagger="140">
+              The same five stages <a class="link" href="/platform/">the platform page</a> describes,
+              written here as what an integrator sees rather than as what the system is.
+            </p>
+          </div>
+
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">01 · Ingest</span>
+              <h3 class="tile__title">The call arrives unchanged</h3>
+              <p class="tile__body">
+                Your request lands on the proxy in the region you deploy it in. Nothing is rewritten;
+                the body you sent is the body the model receives, minus any field you asked Alphe to
+                redact.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">02 · Classify</span>
+              <h3 class="tile__title">Scored before it is spent</h3>
+              <p class="tile__body">
+                A small resident classifier reads task type, required reasoning depth, context
+                length, tool surface and output contract. It adds about 4 ms, on the same hop as the
+                proxy, and every downstream decision is cheap because of it.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">03 · Route</span>
+              <h3 class="tile__title">Cheapest that clears the bar</h3>
+              <p class="tile__body">
+                Not the cheapest model — the cheapest one that still passes, priced against live
+                per-provider token rates and measured quality per task class, with a degrading
+                endpoint losing traffic before it starts timing out.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">04 · Verify</span>
+              <h3 class="tile__title">Checked, not assumed</h3>
+              <p class="tile__body">
+                The output is scored against your rubric. A miss escalates to a stronger model
+                automatically and the escalation is logged, so a router optimising for cost cannot
+                quietly ship a wrong answer to save four cents.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">05 · Return</span>
+              <h3 class="tile__title">Answer plus a decision record</h3>
+              <p class="tile__body">
+                You get the response in the shape your SDK expects, and the trace gets the reasoning:
+                what was chosen, what was rejected, why, and what it saved against your previous pin.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Budget</span>
+              <h3 class="tile__title">Under ten milliseconds, total</h3>
+              <p class="tile__body">
+                Classification and routing together stay under 8 ms of gateway overhead. Provider
+                latency dominates every call; the decision does not move the number your users feel.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="quality">
+        <div class="container">
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">Quality bars</span>
+              <h2 class="feature__title">You set the threshold; the router lives inside it</h2>
+              <p class="feature__body">
+                A quality bar is a number per endpoint between 0 and 1. It is the floor a model has
+                to clear on that class of request before it is allowed to answer it. Raise it and
+                routing gets more conservative and more expensive; lower it and more traffic lands on
+                small models. The bar is the only knob most teams ever touch.
+              </p>
+              <ul class="feature__list">
+                <li>Rubrics are written per endpoint, in plain language or as a schema</li>
+                <li>Escalation on a miss is automatic and logged, not a manual retry in your code</li>
+                <li>The routing table learns, so a class of request does not miss twice</li>
+                <li>A quality regression raises an alert before it reaches a customer</li>
+                <li>Latency and region are part of the same policy, not a separate config</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">policy.yaml</span>
+                </div>
+                <pre class="code__body"><span class="tok-var">endpoint</span>: <span class="tok-str">support-summary</span>
+<span class="tok-var">quality_bar</span>: <span class="tok-num">0.88</span>
+<span class="tok-var">max_latency_ms</span>: <span class="tok-num">1800</span>
+<span class="tok-var">region</span>: <span class="tok-str">eu-west</span>
+<span class="tok-var">fallback</span>:
+  - <span class="tok-str">claude-haiku-4.5</span>
+  - <span class="tok-str">gpt-4o-mini</span>
+<span class="tok-var">cache</span>:
+  <span class="tok-var">semantic</span>: <span class="tok-key">true</span>
+  <span class="tok-var">threshold</span>: <span class="tok-num">0.94</span></pre>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">Decisions</span>
+              <h2 class="feature__title">Every route is explainable after the fact</h2>
+              <p class="feature__body">
+                The decision record is the part of Alphe you will read most often. It says what the
+                classifier thought the request was, which bar applied, which model won, which models
+                lost, the one-line reason, and the money the choice saved against the model you used
+                to pin. It is attached to the trace, so an argument about a bad answer is a lookup
+                rather than a reconstruction.
+              </p>
+              <ul class="feature__list">
+                <li>Per-request cost, latency, model, decision and escalation in one trace</li>
+                <li>Budgets and alerts at team level, enforced at the gateway</li>
+                <li>OpenTelemetry export into whatever you already run</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">decision.json</span>
+                </div>
+                <pre class="code__body">{
+  <span class="tok-var">"task"</span>: <span class="tok-str">"extraction"</span>,
+  <span class="tok-var">"reasoning_depth"</span>: <span class="tok-num">0.18</span>,
+  <span class="tok-var">"context_tokens"</span>: <span class="tok-num">2841</span>,
+  <span class="tok-var">"quality_bar"</span>: <span class="tok-num">0.92</span>,
+  <span class="tok-var">"chosen"</span>: <span class="tok-str">"llama-3.3-70b"</span>,
+  <span class="tok-var">"rejected"</span>: [<span class="tok-str">"gpt-4o"</span>, <span class="tok-str">"claude-sonnet-4"</span>],
+  <span class="tok-var">"reason"</span>: <span class="tok-str">"clears bar at 1/19th cost"</span>,
+  <span class="tok-var">"saved_usd"</span>: <span class="tok-num">0.0412</span>
+}</pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="operations">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Operations</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              Caching, failover and the things that happen without you.
+            </h2>
+          </div>
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">Semantic cache</span>
+              <h3 class="tile__title">Stop paying twice for one question</h3>
+              <p class="tile__body">
+                Exact-match caching catches almost nothing in production, because real users never
+                phrase it identically. Semantic caching matches on meaning above a threshold you
+                control and removes 30–50% of billable calls on repetitive workloads. A cache hit is
+                not billed.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Isolation</span>
+              <h3 class="tile__title">Tenant-scoped by default</h3>
+              <p class="tile__body">
+                One customer's cached answer never serves another's. Precision-critical endpoints can
+                set their own similarity threshold or opt out of the cache entirely.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Compression</span>
+              <h3 class="tile__title">Context that never mattered</h3>
+              <p class="tile__body">
+                Prompt compression trims the parts of a context window that did not influence the
+                answer, for 20–40% fewer input tokens on long-context workloads.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Failover</span>
+              <h3 class="tile__title">A provider outage stops being yours</h3>
+              <p class="tile__body">
+                When a provider degrades, traffic moves to the next candidate that clears the bar,
+                inside the request rather than after a timeout. Your error rate does not move with
+                theirs.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Fallback</span>
+              <h3 class="tile__title">Alphe is not a single point of failure</h3>
+              <p class="tile__body">
+                The SDK falls back to your provider directly on a configurable timeout. Self-hosted
+                deployments serve traffic without reaching our control plane at all.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Budgets</span>
+              <h3 class="tile__title">Enforced at the gateway</h3>
+              <p class="tile__body">
+                A team budget is a limit at the proxy, not a line on a dashboard read after the money
+                is gone. Alerts fire against the same numbers the invoice is built from.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="deployment">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Deployment</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              Three ways to run it, one of which changes nothing.
+            </h2>
+          </div>
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">Shadow mode</span>
+              <h3 class="tile__title">Measure before you move</h3>
+              <p class="tile__body">
+                Mirror a slice of production traffic to Alphe while your real requests keep going
+                where they go today. After a week you have a baseline and a delta: what routing would
+                have cost against what it did cost, and where routing was wrong.
+                <a class="link" href="/contact/">Start there.</a>
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Hosted gateway</span>
+              <h3 class="tile__title">The base URL swap</h3>
+              <p class="tile__body">
+                Requests go to <span class="mono">api.alpheai.com</span> and Alphe holds the provider
+                keys, or forwards through yours. Nothing to deploy, nothing to operate, one invoice
+                or none.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Self-hosted</span>
+              <h3 class="tile__title">Your VPC, your network</h3>
+              <p class="tile__body">
+                The proxy is a single binary. Run it inside your own network when prompts cannot
+                leave it, and keep the control plane hosted. Regional pinning and data-residency
+                guarantees are part of the custom plan.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="limits">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Limits and coverage</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              The numbers, and what kind of numbers they are.
+            </h2>
+            <p class="section-lede" data-reveal data-reveal-stagger="140">
+              Alphe is pre-launch. These are measured figures for the current build, not a published
+              SLA, and the ones drawn from third parties say so.
+            </p>
+          </div>
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">Classification</span>
+              <h3 class="tile__title">~4 ms</h3>
+              <p class="tile__body">
+                Added on-path, in-region, below the noise floor of any provider call. The only place
+                Alphe adds meaningful latency.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Gateway overhead</span>
+              <h3 class="tile__title">Under 8 ms</h3>
+              <p class="tile__body">
+                Classification, routing and verification bookkeeping together, before the provider
+                call your users are actually waiting on.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Model catalogue</span>
+              <h3 class="tile__title">4,500+ models</h3>
+              <p class="tile__body">
+                One routing table across the frontier labs, the open-weight hosts and the specialist
+                endpoints. No tier gating: the catalogue is the same on both plans.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Tools</span>
+              <h3 class="tile__title">7,000+ integrations</h3>
+              <p class="tile__body">
+                Routing applies to tools, agents and workflows, not only to chat completions. The
+                decision layer picks the tool as well as the model.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Savings</span>
+              <h3 class="tile__title">Up to 70%</h3>
+              <p class="tile__body">
+                From three levers, measured separately: routing down on traffic that does not need a
+                frontier model (75–85%), semantic cache hits (30–50%), prompt compression (20–40%
+                fewer input tokens).
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Leaderboard data</span>
+              <h3 class="tile__title">Dated, and someone else's</h3>
+              <p class="tile__body">
+                The model board on <a class="link" href="/">the home page</a> is a snapshot of the
+                public Artificial Analysis leaderboard captured 6 August 2026 — their measurement,
+                not ours. The accuracy-per-dollar boards are ours and are labelled as such.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="security">
+        <div class="container">
+          <article class="feature" data-reveal>
+            <div>
+              <span class="feature__badge">Security</span>
+              <h2 class="feature__title">What happens to the prompt</h2>
+              <p class="feature__body">
+                Alphe sits on the path between your application and a provider, which makes it the
+                one place worth being specific about. Prompts are used to classify, route, verify and
+                — if you turn it on — cache the request they belong to. They are not training data
+                for anyone, and a self-hosted deployment means they never leave your network at all.
+              </p>
+              <ul class="feature__list">
+                <li>PII redaction applies before a request is forwarded, pinned endpoints included</li>
+                <li>Semantic cache entries are tenant-scoped; one customer's answer never serves another's</li>
+                <li>Regional pinning and data-residency guarantees on the custom plan</li>
+                <li>SSO, SCIM and audit logging on the custom plan</li>
+                <li>Self-hosted proxy for networks where prompts cannot leave</li>
+                <li>SOC 2 Type II is on the roadmap and not yet complete — ask for the current status rather than assuming it</li>
+              </ul>
+            </div>
+            <div class="feature__media">
+              <div class="panel crosshairs">
+                <div class="code__bar">
+                  <span class="code__dot"></span><span class="code__dot"></span
+                  ><span class="code__dot"></span>
+                  <span class="code__name">spend.by-feature</span>
+                </div>
+                <pre class="code__body"><span class="tok-com"># attribution follows the request, not the invoice</span>
+onboarding-agent  <span class="tok-num">$4,120</span>
+support-summary   <span class="tok-num">$2,884</span>
+search-rerank     <span class="tok-num">$1,902</span>
+doc-extraction      <span class="tok-num">$744</span>
+internal-evals      <span class="tok-num">$318</span></pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="billing">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Billing mechanics</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              What counts as a request, and what does not.
+            </h2>
+          </div>
+          <div class="grid-3" data-reveal>
+            <div>
+              <span class="tile__label">Rate</span>
+              <h3 class="tile__title">$0.20 per 1,000 routed queries</h3>
+              <p class="tile__body">
+                Metered, no seats, no minimum. Volume rates below that are part of a custom plan.
+                <a class="link" href="/pricing/">The pricing page</a> has both in full.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Billable</span>
+              <h3 class="tile__title">One inbound call, classified and routed</h3>
+              <p class="tile__body">
+                A cache hit is not billed. An automatic escalation to a stronger model counts as one
+                request, not two — you should not pay us more for our own miss.
+              </p>
+            </div>
+            <div>
+              <span class="tile__label">Provider costs</span>
+              <h3 class="tile__title">Passed through at cost</h3>
+              <p class="tile__body">
+                On both plans. Bring your own provider keys and you are billed by the provider
+                exactly as you are today, so committed-spend discounts keep applying and Alphe never
+                touches that invoice.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="status">
+        <div class="container container-narrow">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Status</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              What is not here yet.
+            </h2>
+          </div>
+          <p class="section-lede" style="text-align: left" data-reveal data-reveal-stagger="140">
+            Alphe is in private early access as of August 2026. There is no self-serve signup, so an
+            API key comes from a conversation rather than a dashboard. There is no endpoint-by-endpoint
+            API reference either: the wire format is OpenAI's, so your SDK already documents the
+            request and response shapes, and a full reference lands at general availability. SOC 2
+            Type II and the packaged self-hosted data plane are roadmap, not shipped. Everything else
+            on this page describes the build that runs today. If a number here matters to a decision
+            you are making, write to
+            <a class="link" href="mailto:hello@alpheai.com">hello@alpheai.com</a> and ask what it is
+            this week.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="faq">
+        <div class="container container-narrow">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Questions</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              The eight an integrator asks first.
+            </h2>
+          </div>
+
+          <div class="accordion" data-accordion data-accordion-open="0" data-reveal>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">01</span>
+                <span class="accordion__label">What do I actually change in my code?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  The base URL and the API key. Point your OpenAI or Anthropic client at
+                  <span class="mono">https://api.alpheai.com/v1</span>, send
+                  <span class="mono">model: "auto"</span>, and leave the rest of the call exactly as
+                  it is. Streaming, tool calls, structured output and vision pass through unchanged.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">02</span>
+                <span class="accordion__label">How do I get an API key?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  Keys are issued during early access; there is no self-serve signup yet. Ask at
+                  <a class="link" href="mailto:hello@alpheai.com">hello@alpheai.com</a> or through
+                  <a class="link" href="/contact/">the contact form</a>, and you get a key and a
+                  shadow configuration back.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">03</span>
+                <span class="accordion__label">Can I see why a request went where it went?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  Yes. Every call carries a decision record — task class, reasoning depth, context
+                  length, the quality bar it had to clear, the model chosen, the models rejected, the
+                  reason, and the dollars saved against your previous pin. It is attached to the
+                  trace, so a bad route is explainable after the fact rather than only at the time.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">04</span>
+                <span class="accordion__label">What happens when the cheap model gets it wrong?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  The output is scored against the endpoint's rubric before it is returned. A miss
+                  escalates to a stronger model automatically, under the same request id, and the
+                  escalation is logged. The routing table learns from it, so the same class of
+                  request does not miss twice. An escalation counts as one billable request, not two.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">05</span>
+                <span class="accordion__label">How much latency does Alphe add?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  About 4 ms to classify and under 8 ms of gateway overhead in total, measured
+                  on-path and in-region. These are indicative figures for a pre-launch product, not a
+                  published SLA.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">06</span>
+                <span class="accordion__label">Can prompts stay inside our network?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  Yes. The proxy is a single binary and runs self-hosted or in your own VPC, with the
+                  control plane hosted. Regional pinning and data-residency guarantees are part of
+                  <a class="link" href="/pricing/">the custom plan</a>.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">07</span>
+                <span class="accordion__label">What if Alphe itself is unavailable?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  The SDK falls back to your provider directly on a configurable timeout, so the
+                  gateway cannot become a single point of failure for your product. Self-hosted
+                  deployments serve traffic without depending on our control plane.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">08</span>
+                <span class="accordion__label">Is there a full API reference?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  Not yet. Alphe is OpenAI wire-compatible, so the request and response shapes are
+                  the ones your SDK already implements. A complete endpoint-by-endpoint reference
+                  lands at general availability; until then this page,
+                  <a class="link" href="/agents.md">/agents.md</a> and
+                  <a class="link" href="mailto:hello@alpheai.com">hello@alpheai.com</a> are the
+                  documentation.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="machine">
+        <div class="container container-narrow">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>For agents</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              This site is readable as Markdown.
+            </h2>
+          </div>
+          <p class="section-lede" style="text-align: left" data-reveal data-reveal-stagger="140">
+            Every page here answers <span class="mono">Accept: text/markdown</span> with Markdown at
+            the same URL, sets <span class="mono">Vary: Accept</span>, honours q-values and returns
+            <span class="mono">406</span> for an Accept it cannot satisfy. Append
+            <span class="mono">index.md</span> to any path to get the same file directly.
+            <a class="link" href="/agents.md">/agents.md</a> is the instruction file: when to use
+            Alphe, when not to, and how to call it.
+            <a class="link" href="/llms.txt">/llms.txt</a> indexes the site,
+            <a class="link" href="/llms-full.txt">/llms-full.txt</a> is every page's text in one
+            file, and <a class="link" href="/sitemap.xml">/sitemap.xml</a> lists every indexable URL.
+          </p>
+        </div>
+      </section>
+
+      <section class="section cta">
+        <canvas
+          class="cta__canvas"
+          data-particles="front"
+          data-particle-avoid="1"
+          data-particle-mode="attract"
+          data-particle-cycle="off"
+          aria-hidden="true"
+        ></canvas>
+        <div class="container container-narrow">
+          <h2 class="cta__title" data-avoid data-reveal>Get a key and a shadow endpoint.</h2>
+          <p class="section-lede" style="text-align: left" data-reveal data-reveal-stagger="90">
+            Ten minutes of work on your side, and nothing about your production request path changes.
+          </p>
+          <form class="form" action="/contact.php" method="post" data-avoid data-form novalidate data-reveal data-reveal-stagger="160">
+            <!-- Not a field. Clipped out of the layout, hidden from assistive tech,
+                 readonly so no autofill can reach it, and named nothing any autofill
+                 looks for: only something filling in every input it can parse writes
+                 here. contact.php has the rest of why the name matters. -->
+            <input class="form__trap" type="text" name="alphe_ref" tabindex="-1" autocomplete="off" aria-hidden="true" readonly />
+            <input type="hidden" name="source" value="/docs/" />
+            <input
+              class="form__input"
+              type="email"
+              name="email"
+              aria-label="Work email"
+              autocomplete="email"
+              placeholder="you@company.com"
+              required
+            />
+            <button class="btn btn--primary" type="submit">
+              Get early access <span class="btn__arrow">→</span>
+            </button>
+            <p class="form__status" role="status"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__grid">
+          <div class="footer__col">
+            <a class="nav__brand" href="/" style="margin-bottom: 16px">
+              <img class="nav__mark" src="/media/logo.png" alt="" width="22" height="22" />
+              <span class="nav__wordmark">Alphe</span>
+            </a>
+            <p class="text-muted" style="max-width: 34ch">
+              The decision layer between your application and every model worth calling.
+            </p>
+          </div>
+          <div class="footer__col">
+            <h3>Product</h3>
+            <ul>
+              <li><a href="/platform/">Platform</a></li>
+              <li><a href="/pricing/">Pricing</a></li>
+              <li><a href="/docs/">Docs</a></li>
+              <li><a href="/#coverage">Model coverage</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h3>Company</h3>
+            <ul>
+              <li><a href="/about/">About</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li><a href="/about/#team">Team</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h3>Elsewhere</h3>
+            <ul>
+              <li><a href="https://github.com/bruzethegreat" target="_blank" rel="noopener">GitHub</a></li>
+              <li>
+                <a href="https://www.linkedin.com/in/verma-kumar-ankit" target="_blank" rel="noopener"
+                  >LinkedIn</a
+                >
+              </li>
+              <li><a href="mailto:ankit@ordisai.in">Email</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <span class="mono text-dim">© 2026 Alphe AI · All rights reserved</span>
+          <span class="mono text-dim">Built in India</span>
+        </div>
+      </div>
+
+      <!-- Closing mark. Outside the container on purpose: it is sized in vw so
+           it can reach the viewport edges, which it cannot do from inside a
+           max-width box. The wordmark is decorative — the accessible name for
+           the link lives on the badge. -->
+      <div class="footer__mark" data-footer-mark data-reveal>
+        <span class="footer__word" aria-hidden="true">ALPHE</span>
+        <a class="footer__badge" href="/" aria-label="Alphe AI home">
+          <svg class="footer__glyph" viewBox="0 0 91.08 100" aria-hidden="true" focusable="false">
+            <path
+              class="footer__glyph-path"
+              pathLength="1"
+              d="M1.82 0L20.27 0L21.42 1.58L22.75 3.76L24.82 6.49L26.52 9.1L29.67 13.29L35.01 21.18L37.99 25.18L43.57 33.37L50.67 43.26L52.67 46.36L57.71 53.28L58.43 52.85L60.62 51.03L63.35 48.54L65.9 45.93L67.9 43.57L70.33 40.23L72.03 37.44L73.3 34.83L74.33 32.16L75.24 28.52L75.67 25.06L75.73 0L91.02 0L91.08 23.36L90.96 26.52L90.23 31.86L89.56 34.65L88.29 38.65L86.77 42.23L84.89 45.93L82.89 49.15L79.98 53.09L75.85 57.83L72.75 60.92L68.75 64.38L66.63 66.02L67.05 66.81L69.36 69.9L72.63 74.82L80.46 85.74L81.49 87.44L84.83 92.05L85.38 93.02L88.83 97.82L90.23 100L71.84 100L65.9 91.38L63.17 87.68L60.56 83.74L58.43 80.95L56.55 78.09L53.22 73.54L51.64 71.06L47.63 65.59L40.29 54.92L33.5 45.45L32.58 45.93L28.22 49.76L25.24 52.73L22.75 55.58L20.75 58.37L18.99 61.35L17.29 64.99L16.63 66.93L15.78 70.33L15.41 73.54L15.41 99.94L0 99.94L0.06 73.36L0.36 69.9L0.79 67.23L1.58 63.83L2.73 60.19L4.25 56.49L6.19 52.67L8.74 48.67L11.1 45.51L13.23 42.96L16.2 39.81L20.45 35.92L24.45 32.71L24.39 32.34L16.57 21.42L16.02 20.45L13.11 16.44L9.83 11.53L7.83 8.92L6.31 6.55L3.82 3.16Z"
+            />
+          </svg>
+        </a>
+        <span class="footer__word" aria-hidden="true">AI</span>
+      </div>
+    </footer>
+  </body>
+</html>

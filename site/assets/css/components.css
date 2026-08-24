@@ -1,0 +1,950 @@
+/* Nav ---------------------------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  transition:
+    transform 0.4s var(--ease-out),
+    background-color 0.3s linear,
+    border-color 0.3s linear;
+  border-bottom: 1px solid transparent;
+}
+
+.nav.is-stuck {
+  background: rgba(8, 9, 10, 0.72);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom-color: var(--border);
+}
+
+/* Hides on scroll down, returns on scroll up. Never hides while a menu is open
+   or while focus is inside the bar. */
+.nav.is-hidden {
+  transform: translate3d(0, -100%, 0);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  height: 66px;
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  /* the mark and the word are 26px between them; the bar is 66, so the target
+     can take the extra height without moving anything */
+  min-height: 44px;
+}
+
+.nav__mark {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  /* the source glyph is pure black on transparent */
+  filter: invert(1);
+}
+
+.nav__wordmark {
+  font-size: var(--text-md);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 500;
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-left: auto;
+}
+
+.nav__link {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  transition: color 0.2s linear;
+  position: relative;
+  padding-block: 4px;
+}
+
+.nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.nav__link:hover,
+.nav__link[aria-current='page'] {
+  color: var(--fg);
+}
+
+.nav__link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.nav__toggle {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.nav__toggle span,
+.nav__toggle span::before,
+.nav__toggle span::after {
+  display: block;
+  width: 15px;
+  height: 1px;
+  background: var(--fg);
+  content: '';
+  transition: transform 0.3s var(--ease-out), opacity 0.2s linear;
+}
+
+.nav__toggle span::before {
+  transform: translateY(-5px);
+}
+.nav__toggle span::after {
+  transform: translateY(4px);
+}
+
+.nav.is-open .nav__toggle span {
+  background: transparent;
+}
+.nav.is-open .nav__toggle span::before {
+  transform: rotate(45deg);
+}
+.nav.is-open .nav__toggle span::after {
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .nav__toggle {
+    display: flex;
+    /* the only control in the bar on a phone, and the one every menu opens
+       through: 34px is a mouse target, 40 is a thumb one */
+    width: 40px;
+    height: 40px;
+  }
+  .nav__links {
+    position: fixed;
+    inset: 66px 0 auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: rgba(8, 9, 10, 0.97);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    padding: 8px var(--gutter) 24px;
+    margin: 0;
+    clip-path: inset(0 0 100% 0);
+    pointer-events: none;
+    /* clip-path hides the panel from the eye and pointer-events from the mouse,
+       but neither takes the five links out of the tab order — keyboard focus
+       walks straight into a menu nobody can see. visibility does remove them,
+       and delaying it by the length of the animation means the panel is still
+       painted while it closes. */
+    visibility: hidden;
+    transition:
+      clip-path 0.45s var(--ease-out),
+      visibility 0s linear 0.45s;
+  }
+  .nav.is-open .nav__links {
+    clip-path: inset(0 0 0 0);
+    pointer-events: auto;
+    visibility: visible;
+    transition:
+      clip-path 0.45s var(--ease-out),
+      visibility 0s linear 0s;
+  }
+  .nav__link {
+    padding-block: 16px;
+    border-bottom: 1px solid var(--border-faint);
+    font-size: var(--text-base);
+  }
+  .nav__link::after {
+    display: none;
+  }
+  .nav__links .btn {
+    margin-top: 20px;
+    justify-content: center;
+  }
+}
+
+/* Buttons ------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 13px 18px 12px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition:
+    background-color 0.2s linear,
+    border-color 0.2s linear,
+    color 0.2s linear;
+  white-space: nowrap;
+}
+
+.btn--primary {
+  background: var(--fg);
+  color: #08090a;
+}
+.btn--primary:hover {
+  background: #fff;
+}
+
+.btn--ghost {
+  border-color: var(--border-strong);
+  color: var(--fg);
+}
+.btn--ghost:hover {
+  border-color: var(--fg-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn--brand {
+  background: var(--brand);
+  color: #04070c;
+}
+.btn--brand:hover {
+  background: var(--brand-hover);
+}
+
+.btn--sm {
+  padding: 10px 14px 9px;
+  font-size: var(--text-xs);
+}
+
+/* The small button is 33px tall, which is a fine mouse target and a poor thumb
+   one. On phones it takes the height back; the padding stays, so the label sits
+   where it did and only the box around it grows. */
+@media (max-width: 700px) {
+  .btn--sm {
+    min-height: 40px;
+  }
+}
+
+/* Arrow that slides on hover, without moving the label */
+.btn__arrow {
+  display: inline-block;
+  transition: transform 0.35s var(--ease-out);
+}
+.btn:hover .btn__arrow {
+  transform: translateX(3px);
+}
+
+/* Marquee ------------------------------------------------------------------ */
+
+.marquee {
+  position: relative;
+  /* Narrower than the column it sits in and centred: the strip reads as one
+     band under the hero rather than as text running edge to edge, and the
+     mask's fades land inside the layout instead of on the viewport rim. */
+  width: 70%;
+  margin-inline: auto;
+  overflow: hidden;
+  /* fade the edges rather than hard-cutting — the loop seam becomes invisible */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee__group {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  padding-inline: 30px;
+  white-space: nowrap;
+  transition: color 0.25s linear;
+}
+
+/* Sized to the strip's own type rather than to a fixed pixel box, so the mark
+   and the name stay the same weight relative to each other at every step of the
+   scale. The monochrome marks paint currentColor and dim with the name; the
+   ones that carry their own fills keep their colours and ignore it — which is
+   the point, because a vendor's colour is half of what makes it recognisable at
+   marquee speed. */
+.marquee__glyph {
+  width: 1.35em;
+  height: 1.35em;
+  flex: none;
+  fill: currentColor;
+  /* Full opacity would put fourteen coloured marks in front of a hero line;
+     the strip is a footnote to it, not a competing row. */
+  opacity: 0.72;
+  transition: opacity 0.25s linear;
+}
+
+.marquee:hover .marquee__item {
+  color: var(--fg-muted);
+}
+
+.marquee:hover .marquee__glyph {
+  opacity: 1;
+}
+
+/* On a phone the band is most of the screen already; 70% of that is a slot too
+   narrow to read a vendor name in before it has scrolled past. */
+@media (max-width: 720px) {
+  .marquee {
+    width: 92%;
+  }
+}
+
+/* Accordion ---------------------------------------------------------------- */
+
+.accordion {
+  border-top: 1px solid var(--border);
+}
+
+.accordion__item {
+  border-bottom: 1px solid var(--border);
+}
+
+.accordion__trigger {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  padding: 26px 0;
+  text-align: left;
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
+  transition: color 0.2s linear;
+}
+
+.accordion__trigger:hover {
+  color: var(--brand);
+}
+
+.accordion__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  color: var(--fg-dim);
+  padding-top: 7px;
+  flex: none;
+  width: 34px;
+}
+
+.accordion__label {
+  flex: 1;
+}
+
+.accordion__sign {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  margin-top: 8px;
+  position: relative;
+}
+
+.accordion__sign::before,
+.accordion__sign::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: currentColor;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.accordion__sign::after {
+  transform: rotate(90deg);
+}
+
+.accordion__item.is-open .accordion__sign::after {
+  transform: rotate(0deg);
+}
+
+/* Height animated from a measured value rather than `auto` — `auto` does not
+   interpolate, and grid-template-rows 0fr→1fr costs a layout pass per frame.
+
+   Gated on html.js, like every other rule on this site that hides something
+   pending JavaScript. Collapsing the panels unconditionally hid every FAQ
+   answer from a reader with no JS — a crawler, a text browser, an agent — and
+   those answers are some of the most useful prose on the site. Without JS the
+   accordion is a list of questions with their answers under them; with JS it is
+   exactly what it was. */
+html.js .accordion__panel {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.45s var(--ease-out);
+}
+
+.accordion__body {
+  padding: 0 58px 30px 58px;
+  color: var(--fg-muted);
+  max-width: 68ch;
+}
+
+html.reduced-motion .accordion__panel {
+  transition-duration: 0.15s;
+}
+
+/* The 58px indent is a column on a desktop and a squeeze on a phone: at 320 it
+   left the answer 164px of measure and eleven lines for three sentences. The
+   index keeps its column, narrower, and the answer keeps its alignment with the
+   question while giving the right-hand indent back — 240px of measure at 320. */
+@media (max-width: 560px) {
+  .accordion__trigger {
+    gap: 14px;
+  }
+  .accordion__index {
+    width: 26px;
+  }
+  .accordion__body {
+    padding: 0 0 26px 40px;
+  }
+}
+
+/* Panels / cards ----------------------------------------------------------- */
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+/* Grid and flex items default to min-width:auto, which means a <pre> reports its
+   longest line as a minimum however hard it is told to scroll. Without this the
+   code blocks set the width of the whole page at narrow viewports and .code__body's
+   overflow-x never engages. */
+.panel,
+.code,
+.feature > *,
+.econ > * {
+  min-width: 0;
+}
+
+/* Corner crosshairs — four 1px marks that read as registration marks on a
+   technical drawing. */
+.crosshairs::before,
+.crosshairs::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--border-strong);
+  pointer-events: none;
+}
+.crosshairs::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.crosshairs::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* Code panel --------------------------------------------------------------- */
+
+.code {
+  background: #0a0c0e;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.75;
+}
+
+.code__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.code__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.code__name {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-left: 6px;
+}
+
+.code__body {
+  padding: 20px 22px;
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre;
+  color: var(--fg-muted);
+}
+
+/* Half of these blocks are column-aligned — a log with its scores in a column,
+   spend with its bars — so wrapping them is not an option: it is the alignment
+   that carries the meaning. Smaller type and tighter padding gets most of them
+   inside a phone; the rest scroll, and say so. */
+@media (max-width: 640px) {
+  .code__body {
+    padding: 16px 14px;
+    font-size: 11px;
+    line-height: 1.7;
+    /* Two pairs of gradients. The opaque ones are `local`, so they travel with
+       the content and park over the shadow at whichever end has been reached;
+       the blue ones are fixed to the box. Net effect: an edge is marked only
+       while there is something past it. No script and no extra markup. */
+    background:
+      linear-gradient(to right, #0a0c0e 40%, rgba(10, 12, 14, 0)) left center / 30px 100%
+        no-repeat local,
+      linear-gradient(to left, #0a0c0e 40%, rgba(10, 12, 14, 0)) right center / 30px 100% no-repeat
+        local,
+      linear-gradient(to right, rgba(81, 162, 255, 0.2), rgba(81, 162, 255, 0)) left center / 20px
+        100% no-repeat scroll,
+      linear-gradient(to left, rgba(81, 162, 255, 0.2), rgba(81, 162, 255, 0)) right center / 20px
+        100% no-repeat scroll;
+  }
+}
+
+.tok-key {
+  color: #c792ea;
+}
+.tok-fn {
+  color: var(--brand);
+}
+.tok-str {
+  color: #a5d6a7;
+}
+.tok-num {
+  color: #ffcb6b;
+}
+.tok-com {
+  color: var(--fg-dim);
+}
+.tok-var {
+  color: var(--fg);
+}
+
+/* Footer ------------------------------------------------------------------- */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-top: 72px;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: 48px 32px;
+  padding-bottom: 72px;
+}
+
+.footer__col :is(h2, h3) {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 18px;
+}
+
+.footer__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* the rows below carry their own height now, so the gap comes down to keep
+     the same rhythm on the page */
+  gap: 5px;
+}
+
+.footer__col a {
+  color: var(--fg-muted);
+  font-size: var(--text-base);
+  transition: color 0.2s linear;
+  /* a 17px line of text is not a 24px target */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.footer__col a:hover {
+  color: var(--fg);
+}
+
+.footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding-block: 22px 26px;
+}
+
+/* Closing mark ------------------------------------------------------------- */
+
+/* The name at full size with the mark set into it, closing every page.
+   Deliberately outside the container: it is sized in vw so it can reach the
+   viewport edges, which it could not do from inside a 1240px box.
+
+   Letters are hollow at rest and lit by a pool of light that follows the
+   pointer — a radial gradient clipped to the text, moved by footer.js. Without
+   scripting the pool simply stays in the middle, so the mark is never blank. */
+.footer__mark {
+  /* Centre of the pool and its radius, in this block's own coordinates. The
+     module overwrites the two coordinates while it is chasing a pointer and
+     removes them again once the light is home, so these are the resting values
+     everywhere — no pointer, no scripting, and a desktop between visits. The
+     radius is never written from script: the mark spans the viewport, so 30vw
+     is the same number the module would compute for it. */
+  --fx: 50%;
+  --fy: 47%;
+  --fr: 30vw;
+
+  /* Air the ink keeps either side. Not --gutter: this is the widest type on the
+     page by an order of magnitude, and a margin that reads as generous around a
+     paragraph reads as a rounding error around a 300px letter. */
+  --mark-gutter: clamp(20px, 3.6vw, 64px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Air either side of the badge. In em so it tracks the type, not the
+     breakpoint. */
+  gap: 0.09em;
+  padding: 34px 0 26px;
+
+  /* The two words and the badge measure 4.53em of ink at the ratios set below,
+     so this solves 4.53 * size = 100vw - 2 * gutter for the size — the type is
+     sized from the space left over rather than the gutter being whatever the
+     type happens to leave. The cap stops a very wide screen from turning the
+     mark into a banner. */
+  font-size: min(calc(22.07vw - 0.442 * var(--mark-gutter)), 340px);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.8;
+
+  /* The pool is light, not paint. Everywhere else on the page the brand blue is
+     a hairline — a focus ring, a border on hover — so a saturated blue core at
+     300px of type is the one place the palette would raise its voice. It runs
+     white through the site's own greys instead, and only picks up the blue out
+     at the falloff, where it reads as the colour of the light rather than as
+     the colour of the letters. */
+  background-image:
+    radial-gradient(
+      circle var(--fr) at var(--fx) var(--fy),
+      #ffffff 0%,
+      rgba(244, 245, 246, 0.92) 26%,
+      rgba(186, 192, 197, 0.62) 46%,
+      rgba(126, 133, 139, 0.42) 62%,
+      rgba(81, 162, 255, 0.2) 78%,
+      rgba(81, 162, 255, 0) 92%
+    ),
+    /* A floor under the light, so the letters read as glass rather than as a
+       wireframe when the pointer is nowhere near them. */
+      linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Tracks the type rather than the breakpoint: a hairline that is right at
+     83px is invisible at 308px. The colour is the glyph's own --fg and not a
+     border token: ALPHE, the mark and AI are one lockup, and the glyph's outline
+     is opaque white — an outline at 16% on the letters either side of it drew
+     the mark and ghosted the name, which reads as half a logo. Same weight, same
+     colour, all the way across. The fill underneath is still the pointer pool,
+     so the light that moves over the letters is untouched. */
+  -webkit-text-stroke: max(1px, 0.0055em) var(--fg);
+  user-select: none;
+}
+
+/* letter-spacing hangs an empty column off the last glyph of each word. Taking
+   it back means the badge sits between ink, not between boxes. */
+.footer__word {
+  margin-inline-end: -0.05em;
+}
+
+/* The mark in the gap where the space would be. Sized in em so it scales with
+   the wordmark, and the only part of this block that takes a pointer.
+
+   No container at all: a letter, not a card and not a chip. Every other letter
+   in this line is a hollow outline with nothing behind it, so anything drawn
+   around this one — a surface, a shadow, or the hairline box that used to be
+   here — makes it the one framed object in a row of unframed ones, and the eye
+   goes to the frame instead of to the word. What is left is the glyph and the
+   space it occupies, which is what ALPHE and AI are too. The box is gone from
+   the paint only; the em square stays, because it is what the wordmark's own
+   font-size is solved against. */
+.footer__badge {
+  flex: none;
+  width: 0.58em;
+  height: 0.58em;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  transition: transform 0.28s var(--ease-out);
+}
+
+.footer__badge:hover {
+  transform: translateY(-3px);
+}
+
+.footer__badge:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
+}
+
+/* Most of the square the box used to leave it a corner of, so the glyph reads as
+   a letter in the line rather than as a badge's contents. Not all of it: the em
+   square is the width the wordmark's font-size was solved against and cannot
+   move, while the gap either side of it is 0.09em less the 0.05em the letters'
+   tracking gives back — so a glyph filling its square outright has 0.04em of air
+   before ALPHE's E, and its top-left diagonal crosses the E's arms. What is left
+   here is that air, taken back off the glyph instead of off the layout. Height
+   from the ratio, which overhangs the square a little top and bottom. */
+.footer__glyph {
+  display: block;
+  width: 82%;
+  height: auto;
+  /* The path runs to 0 and to 91.08 × 100 exactly — the outline IS the viewBox
+     edge. A stroke straddles the line it is drawn on, so an SVG root, which
+     clips to its viewport by default, cuts the outer half of it away all the
+     way round and the glyph comes out with a hairline on three sides and half a
+     hairline where it meets the box. Letting it overflow keeps the whole width
+     of the stroke; padding the viewBox instead would not, because the stroke is
+     non-scaling and its width in user units changes with the screen. */
+  overflow: visible;
+}
+
+/* Hollow, like every letter in the line — the fill is what made this a mark
+   stamped onto the wordmark rather than a letter of it. non-scaling-stroke so
+   the width can be stated in the same terms as the -webkit-text-stroke on those
+   letters and come out at the same hairline: without it the number is in the
+   viewBox's units and the glyph's own scaling would make the outline three
+   times the letters' weight on a wide screen and half of it on a phone. */
+.footer__glyph-path {
+  fill: none;
+  stroke: var(--fg);
+  vector-effect: non-scaling-stroke;
+  stroke-width: max(1px, 0.0055em);
+  stroke-linejoin: round;
+  transition: stroke 0.28s linear;
+}
+
+html.can-hover .footer__badge:hover .footer__glyph-path {
+  stroke: var(--brand);
+}
+
+/* The draw only exists once scripting can time it to the mark coming into view.
+   Without it the glyph is simply there.
+
+   --fd is the outline's length in screen pixels, measured and kept current by
+   the footer module. It cannot be written here: non-scaling-stroke makes the
+   browser dash in screen space while the path is measured in the viewBox's
+   units, so a dash stated in either one is wrong by the glyph's scale factor —
+   at 1440 that is 1.54, and a dash meant to cover the whole outline covered 65%
+   of it and left the mark's left leg undrawn. If the property is missing the
+   declarations below are invalid at computed-value time and fall back to their
+   initials — no dash, whole glyph, no draw — which is the right way to fail. */
+html.js .footer__glyph-path {
+  stroke-dasharray: var(--fd);
+  stroke-dashoffset: var(--fd);
+}
+
+html.js .footer__mark.is-revealed .footer__glyph-path {
+  animation: footer-draw 1.25s var(--ease-out) 0.15s forwards;
+}
+
+/* Re-drawn on hover, from wherever the first pass left it. */
+html.js .footer__badge:hover .footer__glyph-path {
+  animation: footer-redraw 0.85s var(--ease-out) forwards;
+}
+
+/* The whole of it now. The draw used to trace the outline and then flood the
+   glyph, which was the moment it stopped being a letter — so the trace is the
+   animation, start to end, and what it leaves behind is the outline it drew. */
+@keyframes footer-draw {
+  from {
+    stroke-dashoffset: var(--fd);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Identical to footer-draw, and a second name rather than a second duration on
+   the first: matching animation-name means the browser updates the running
+   animation instead of starting one, so re-using the name would change how long
+   the hover redraw takes without ever replaying it. */
+@keyframes footer-redraw {
+  from {
+    stroke-dashoffset: var(--fd);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+html.reduced-motion .footer__badge,
+html.reduced-motion .footer__glyph-path {
+  transition: none;
+  animation: none;
+}
+
+html.reduced-motion .footer__glyph-path {
+  stroke-dashoffset: 0;
+}
+
+@media (max-width: 560px) {
+  .footer__mark {
+    padding: 26px 0 20px;
+    -webkit-text-stroke-width: 1px;
+  }
+}
+
+@media (max-width: 900px) {
+  .footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer__grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+}
+
+/* Six links stacked 29px apart is a column a thumb cannot pick out of. On
+   phones each row takes a full target height and the gap goes to zero — same
+   rhythm, twice the hit area. */
+@media (max-width: 700px) {
+  .footer__col ul {
+    gap: 0;
+  }
+  .footer__col a {
+    min-height: 40px;
+  }
+}
+
+/* Cursor ------------------------------------------------------------------- */
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 90;
+  will-change: transform;
+  transition:
+    width 0.3s var(--ease-out),
+    height 0.3s var(--ease-out),
+    margin 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out),
+    opacity 0.25s linear;
+  opacity: 0;
+}
+
+.cursor.is-active {
+  opacity: 1;
+}
+
+.cursor.is-hovering {
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  background: rgba(81, 162, 255, 0.1);
+  border-color: var(--brand);
+}
+
+html:not(.can-hover) .cursor {
+  display: none;
+}
+
+/* Grain -------------------------------------------------------------------- */
+/* One canvas over everything, repainted 10 times a second. Anything faster
+   reads as video noise; anything slower reads as a still texture. */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+/* Inline link ------------------------------------------------------------- */
+/* A link inside a sentence rather than a control: brighter than the copy around
+   it and underlined, because a colour shift on its own is not a distinction
+   every reader can see.
+   Height comes from padding, not line-height. WCAG exempts a target constrained
+   by the line it sits in from the full 40px but still asks for 24, and growing
+   the inline box gets there without moving the paragraph. Same trick as
+   .bench__src a. */
+
+.link {
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding-block: 4px;
+  transition: color 0.2s linear;
+}
+
+html.can-hover .link:hover {
+  color: var(--brand);
+}

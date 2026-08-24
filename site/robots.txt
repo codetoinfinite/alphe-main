@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# One sitemap, absolute as the protocol requires. Nothing is disallowed: the
+# site is six public pages and a 404 that carries its own noindex, and a
+# Disallow would only stop the crawl, not the indexing — a blocked URL can still
+# be listed from links alone, and blocked is exactly the state in which the
+# crawler cannot read the noindex that would have kept it out.
+# The AI crawlers are covered by the wildcard above, deliberately. They are
+# separate agents now and they are not interchangeable: GPTBot and ClaudeBot
+# collect training data, while OAI-SearchBot and Claude-SearchBot build the
+# indexes that ChatGPT and Claude answer from, and ChatGPT-User and Claude-User
+# fetch a page because a person asked about it right now. Blocking the training
+# pair is the only part that is arguably worth anything, and it costs the other
+# four — several of which read a Disallow written for a sibling agent as a
+# reason to skip the site — so a pre-launch company with six pages and nothing
+# proprietary on them gains nothing and loses the citations.
+#
+# If that trade ever changes, disallow the training agents by name here. Do not
+# disallow the search or user agents: being absent from those indexes is the
+# same as not existing to anyone who asks an assistant instead of a search box.
+
+Sitemap: https://alpheai.com/sitemap.xml

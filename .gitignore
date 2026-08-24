@@ -1,0 +1,25 @@
+node_modules/
+.DS_Store
+*.log
+
+# Deploy output. `node tools/bundle.mjs` rebuilds it from site/ in a second, and
+# site/ is the thing under version control — dist/ is a copy of it plus a zip.
+dist/
+
+# Vercel CLI
+.vercel
+
+# Local notes, not part of the site
+PLAN.md
+
+# The lead store. site/contact.php writes it above the document root when the
+# host allows and inside a hidden directory when it does not, so a local run of
+# the endpoint drops one of these in the tree. Real names and phone numbers in
+# production, test rows here; neither is site source.
+alphe-leads/
+site/.alphe-leads/
+
+# The mailbox password contact.php authenticates to SMTP with. Lives above
+# public_html on the server; a copy in the tree is only ever for a local test.
+alphe-mail.php
+site/alphe-mail.php

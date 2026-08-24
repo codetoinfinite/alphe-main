@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Six URLs, one per indexable route. 404.html is noindex and is deliberately
+     absent.
+
+     No <changefreq> and no <priority>: Google ignores both outright and has said
+     so since 2015, so they were two more things to keep in sync for nothing.
+     <lastmod> is the one element it does read, and only while the dates stay
+     honest — a file that claims yesterday and last changed a year ago teaches
+     the crawler to stop believing the whole sitemap. Update the date on a page
+     when that page's content changes, not on every deploy. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://alpheai.com/</loc>
+    <lastmod>2026-08-23</lastmod>
+  </url>
+  <url>
+    <loc>https://alpheai.com/platform/</loc>
+    <lastmod>2026-08-23</lastmod>
+  </url>
+  <url>
+    <loc>https://alpheai.com/pricing/</loc>
+    <lastmod>2026-08-23</lastmod>
+  </url>
+  <url>
+    <loc>https://alpheai.com/docs/</loc>
+    <lastmod>2026-08-23</lastmod>
+  </url>
+  <url>
+    <loc>https://alpheai.com/about/</loc>
+    <lastmod>2026-08-23</lastmod>
+  </url>
+  <url>
+    <loc>https://alpheai.com/contact/</loc>
+    <lastmod>2026-08-23</lastmod>
+  </url>
+</urlset>

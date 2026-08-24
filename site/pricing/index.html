@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pricing | Alphe AI</title>
+    <meta
+      name="description"
+      content="Alphe pricing: $0.20 per 1K routed queries, pay as you go, or a custom plan on volume. Provider costs stay yours."
+    />
+    <meta name="theme-color" content="#08090a" />
+    <!-- index, follow is the default and is written down anyway, because the line
+         exists for max-image-preview: without it Google caps the preview at a
+         thumbnail no matter how large og.png is (it is 1200x630), which is the
+         difference between a card and a favicon in Discover and in the image
+         strip. -->
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <!-- .ico for Safari and the older crawlers, .svg for everything current,
+         square PNG for the icon iOS masks itself. See index.html. -->
+    <link rel="icon" href="/media/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/media/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
+    <link rel="canonical" href="https://alpheai.com/pricing/" />
+    <!-- The Markdown twin of this page, served at this same URL to anything that
+         sends `Accept: text/markdown` — see site/negotiate.php. The link element
+         is here for clients that read the document rather than the headers. -->
+    <link rel="alternate" type="text/markdown" href="/pricing/index.md" />
+    <meta property="og:site_name" content="Alphe" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://alpheai.com/pricing/" />
+    <meta property="og:title" content="Pricing | Alphe AI" />
+    <meta property="og:description" content="Alphe pricing: $0.20 per 1K routed queries, pay as you go, or a custom plan on volume. Provider costs stay yours." />
+    <meta property="og:image" content="https://alpheai.com/media/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pricing | Alphe AI" />
+    <meta name="twitter:description" content="Alphe pricing: $0.20 per 1K routed queries, pay as you go, or a custom plan on volume. Provider costs stay yours." />
+    <meta name="twitter:image" content="https://alpheai.com/media/og.png" />
+    <!-- The offers are the ones on the page, at the rate the page quotes, and the
+         six questions below are transcribed from the accordion rather than
+         written for the crawler. Both have to keep matching what a reader sees:
+         schema that disagrees with the visible copy is a manual-action risk, and
+         re-stating prices in two places is exactly how that drift starts.
+
+         Same trick as the home page: an unknown script type makes this a data
+         block, so the CSP's script-src never applies to it. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://alpheai.com/#software",
+            "name": "Alphe",
+            "applicationCategory": "DeveloperApplication",
+            "applicationSubCategory": "AI gateway and model routing",
+            "operatingSystem": "Any",
+            "url": "https://alpheai.com/",
+            "description": "An OpenAI-compatible endpoint that classifies each request, routes it to the cheapest model still clearing a per-endpoint quality bar, and adds semantic caching, failover, cost attribution and tracing.",
+            "provider": {
+              "@id": "https://alpheai.com/#organization"
+            },
+            "offers": [
+              {
+                "@type": "Offer",
+                "name": "Pay as you go",
+                "url": "https://alpheai.com/pricing/",
+                "priceCurrency": "USD",
+                "price": "0.20",
+                "description": "One rate, metered per query. No seats and no minimum. Provider token costs pass through at cost.",
+                "priceSpecification": {
+                  "@type": "UnitPriceSpecification",
+                  "priceCurrency": "USD",
+                  "price": "0.20",
+                  "referenceQuantity": {
+                    "@type": "QuantitativeValue",
+                    "value": 1000,
+                    "unitText": "routed queries"
+                  }
+                }
+              },
+              {
+                "@type": "Offer",
+                "name": "Custom",
+                "url": "https://alpheai.com/contact/",
+                "priceCurrency": "USD",
+                "description": "A share of measured savings or a flat annual fee, with a volume rate below $0.20 per 1,000 routed queries. Priced on application.",
+                "availability": "https://schema.org/InStock"
+              }
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://alpheai.com/pricing/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Do I pay provider costs twice?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Token costs pass through at cost. If you bring your own provider keys, you are billed by the provider exactly as you are today and Alphe never touches that invoice, so your committed-spend discounts keep applying."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What counts as a routed request?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "One inbound call that Alphe classifies and routes. A cache hit is not billed. An automatic escalation to a stronger model counts as one request, not two. You should not pay us more for our own miss."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does share-of-savings work?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "We measure your baseline in shadow mode for two weeks, agree it in writing, then bill a percentage of the measured reduction against that baseline. If routing saves nothing, the invoice is zero."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What happens if Alphe is down?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The SDK falls back to your provider directly on a configurable timeout, so the gateway cannot become a single point of failure for your product. Self-hosted deployments run entirely inside your network and do not depend on our control plane to serve traffic."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I pin a model and skip routing?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, per endpoint. Some paths need reproducibility more than they need savings. Pinned endpoints still get caching, failover, attribution and PII redaction."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is there a startup discount?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Build covers most pre-seed and seed usage outright. If you have outgrown it and the bill is the reason you are reading this page, tell us where you are and we will make it work."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://alpheai.com/pricing/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://alpheai.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Pricing",
+                "item": "https://alpheai.com/pricing/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/geist-sans-latin-400-normal.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/geist-mono-latin-400-normal.woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/sections.css" />
+    <script src="/assets/js/boot.js"></script>
+    <script type="module" src="/assets/js/main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="nav" data-nav>
+      <div class="container nav__inner">
+        <a class="nav__brand" href="/" aria-label="Alphe home">
+          <img class="nav__mark" src="/media/logo.png" alt="" width="22" height="22" />
+          <span class="nav__wordmark">Alphe</span>
+        </a>
+        <button class="nav__toggle" data-nav-toggle aria-label="Menu" aria-expanded="false">
+          <span></span>
+        </button>
+        <nav class="nav__links">
+          <a class="nav__link" href="/platform/">Platform</a>
+          <a class="nav__link" href="/pricing/">Pricing</a>
+          <a class="nav__link" href="/about/">About</a>
+          <a class="btn btn--primary" href="/contact/">Get early access</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <section class="page-head">
+        <canvas
+          class="hero__field hero__field--back"
+          data-particles="back"
+          data-particle-texts="ALPHE | 2 | ∞"
+          aria-hidden="true"
+        ></canvas>
+        <div class="container">
+          <span class="eyebrow" data-reveal>Pricing</span>
+          <h1 class="page-head__title" data-split-lines>You should pay us less than we save you.</h1>
+          <p class="page-head__lede" data-reveal data-reveal-stagger="300">
+            Provider costs stay yours, routed through your keys or ours, at the same rates. Alphe
+            charges for <a class="link" href="/platform/">the decision layer</a>, and the decision layer is only worth what it removes
+            from your bill.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="container">
+          <div class="tiers" data-reveal-group="80">
+            <div class="tier is-featured">
+              <h2 class="tier__name">Pay as you go</h2>
+              <div class="tier__price">$0.20 <small>/ 1K routed queries</small></div>
+              <p class="tier__note">
+                One rate, metered per query. No seats, no minimum, nothing to commit to before you
+                know what routing is worth to you.
+              </p>
+              <ul class="tier__list">
+                <li>Full model catalogue, no tier gating</li>
+                <li>Per-endpoint quality bars and rubrics</li>
+                <li>Automatic escalation and failover</li>
+                <li>Semantic cache and prompt compression</li>
+                <li>Cost attribution by team, feature and customer</li>
+                <li>Budgets and alerts enforced at the gateway</li>
+                <li>Traces and OpenTelemetry export</li>
+              </ul>
+              <a class="btn btn--primary" href="/contact/"
+                >Get early access <span class="btn__arrow">→</span></a
+              >
+            </div>
+
+            <div class="tier">
+              <h2 class="tier__name">Custom</h2>
+              <div class="tier__price">Talk to us</div>
+              <p class="tier__note">
+                A share of what you save, or a flat annual fee, whichever you would rather defend to
+                finance.
+              </p>
+              <ul class="tier__list">
+                <li>Everything in pay as you go</li>
+                <li>Volume rate below $0.20 / 1K</li>
+                <li>Self-hosted proxy in your VPC</li>
+                <li>Regional pinning and data residency guarantees</li>
+                <li>SSO, SCIM and audit logging</li>
+                <li>Custom rubrics and private model endpoints</li>
+                <li>SLA, DPA and security review</li>
+                <li>Named engineer, shared roadmap</li>
+              </ul>
+              <a class="btn btn--ghost" href="/contact/">Talk to us</a>
+            </div>
+          </div>
+
+          <p class="text-dim mono" style="margin-top: 26px; text-align: center">
+            Early-access pricing. Provider token costs are passed through at cost on both plans.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Check it yourself</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              The only number that matters is the delta.
+            </h2>
+          </div>
+
+          <div class="econ">
+            <div data-reveal>
+              <h3 style="font-size: var(--text-2xl)">
+                Move the slider to your current spend. What Alphe costs is a fraction of the line
+                above it.
+              </h3>
+              <p class="section-lede" style="margin-top: 20px">
+                A team at $40K a month typically routes around 8 million requests. At $0.20 per 1,000
+                that is $1,600 in platform fees against roughly $28,000 in avoided provider spend,
+                and the rate comes down on a custom plan.
+              </p>
+              <ul class="feature__list" style="margin-top: 26px">
+                <li>Routing: 75–85% reduction on traffic that routes down a tier</li>
+                <li>Semantic cache: 30–50% on repetitive workloads</li>
+                <li>Context compression: 20–40% fewer input tokens at equal output quality</li>
+              </ul>
+            </div>
+
+            <div class="calc" data-calculator data-reveal data-reveal-stagger="100">
+              <canvas class="calc__canvas" data-dither aria-hidden="true"></canvas>
+              <div class="calc__inner">
+                <div class="calc__label"><span>Current monthly inference spend</span></div>
+                <div class="calc__spend" data-calc-spend>$45K/mo</div>
+                <input
+                  class="calc__slider"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  value="500"
+                  aria-label="Current monthly inference spend"
+                />
+                <div class="calc__out">
+                  <div class="calc__cell">
+                    <div class="calc__cell-label">With Alphe</div>
+                    <div class="calc__cell-value" data-calc-after>$13K/mo</div>
+                  </div>
+                  <div class="calc__cell calc__cell--win">
+                    <div class="calc__cell-label">Saved per year</div>
+                    <div class="calc__cell-value" data-calc-saved>$376K</div>
+                  </div>
+                </div>
+                <p class="calc__foot" data-calc-foot>70% reduction: routing, semantic cache hits and prompt compression, measured against your current provider mix.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="faq">
+        <div class="container container-narrow">
+          <div class="section-head">
+            <span class="eyebrow" data-reveal>Questions</span>
+            <h2 class="section-title" data-reveal data-reveal-stagger="80">
+              The ones that come up on every call.
+            </h2>
+          </div>
+
+          <div class="accordion" data-accordion data-accordion-open="0" data-reveal>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">01</span>
+                <span class="accordion__label">Do I pay provider costs twice?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  No. Token costs pass through at cost. If you bring your own provider keys, you are
+                  billed by the provider exactly as you are today and Alphe never touches that
+                  invoice, so your committed-spend discounts keep applying.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">02</span>
+                <span class="accordion__label">What counts as a routed request?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  One inbound call that Alphe classifies and routes. A cache hit is not billed. An
+                  automatic escalation to a stronger model counts as one request, not two. You
+                  should not pay us more for our own miss.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">03</span>
+                <span class="accordion__label">How does share-of-savings work?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  We measure your baseline in shadow mode for two weeks, agree it in writing, then
+                  bill a percentage of the measured reduction against that baseline. If routing
+                  saves nothing, the invoice is zero.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">04</span>
+                <span class="accordion__label">What happens if Alphe is down?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  The SDK falls back to your provider directly on a configurable timeout, so the
+                  gateway cannot become a single point of failure for your product. Self-hosted
+                  deployments run entirely inside your network and do not depend on our control
+                  plane to serve traffic.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">05</span>
+                <span class="accordion__label">Can I pin a model and skip routing?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  Yes, per endpoint. Some paths need reproducibility more than they need savings.
+                  Pinned endpoints still get caching, failover, attribution and PII redaction.
+                </div>
+              </div>
+            </div>
+            <div class="accordion__item">
+              <button class="accordion__trigger" type="button">
+                <span class="accordion__index">06</span>
+                <span class="accordion__label">Is there a startup discount?</span>
+                <span class="accordion__sign"></span>
+              </button>
+              <div class="accordion__panel">
+                <div class="accordion__body">
+                  Build covers most pre-seed and seed usage outright. If you have outgrown it and
+                  the bill is the reason you are reading this page, tell us where you are and we
+                  will make it work.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section cta">
+        <canvas
+          class="cta__canvas"
+          data-particles="front"
+          data-particle-avoid="1"
+          data-particle-mode="attract"
+          data-particle-cycle="off"
+          aria-hidden="true"
+        ></canvas>
+        <div class="container container-narrow">
+          <h2 class="cta__title" data-avoid data-reveal>Find out what you would have saved last month.</h2>
+          <form class="form" action="/contact.php" method="post" data-avoid data-form novalidate data-reveal data-reveal-stagger="120">
+            <!-- Not a field. Clipped out of the layout, hidden from assistive tech,
+                 readonly so no autofill can reach it, and named nothing any autofill
+                 looks for: only something filling in every input it can parse writes
+                 here. contact.php has the rest of why the name matters. -->
+            <input class="form__trap" type="text" name="alphe_ref" tabindex="-1" autocomplete="off" aria-hidden="true" readonly />
+            <input type="hidden" name="source" value="/pricing/" />
+            <input
+              class="form__input"
+              type="email"
+              name="email"
+              aria-label="Work email"
+              autocomplete="email"
+              placeholder="you@company.com"
+              required
+            />
+            <button class="btn btn--primary" type="submit">
+              Get early access <span class="btn__arrow">→</span>
+            </button>
+            <p class="form__status" role="status"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__grid">
+          <div class="footer__col">
+            <a class="nav__brand" href="/" style="margin-bottom: 16px">
+              <img class="nav__mark" src="/media/logo.png" alt="" width="22" height="22" />
+              <span class="nav__wordmark">Alphe</span>
+            </a>
+            <p class="text-muted" style="max-width: 34ch">
+              The decision layer between your application and every model worth calling.
+            </p>
+          </div>
+          <div class="footer__col">
+            <h3>Product</h3>
+            <ul>
+              <li><a href="/platform/">Platform</a></li>
+              <li><a href="/pricing/">Pricing</a></li>
+              <li><a href="/docs/">Docs</a></li>
+              <li><a href="/#coverage">Model coverage</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h3>Company</h3>
+            <ul>
+              <li><a href="/about/">About</a></li>
+              <li><a href="/contact/">Contact</a></li>
+              <li><a href="/about/#team">Team</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h3>Elsewhere</h3>
+            <ul>
+              <li><a href="https://github.com/bruzethegreat" target="_blank" rel="noopener">GitHub</a></li>
+              <li>
+                <a href="https://www.linkedin.com/in/verma-kumar-ankit" target="_blank" rel="noopener"
+                  >LinkedIn</a
+                >
+              </li>
+              <li><a href="mailto:ankit@ordisai.in">Email</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <span class="mono text-dim">© 2026 Alphe AI · All rights reserved</span>
+          <span class="mono text-dim">Built in India</span>
+        </div>
+      </div>
+
+      <!-- Closing mark. Outside the container on purpose: it is sized in vw so
+           it can reach the viewport edges, which it cannot do from inside a
+           max-width box. The wordmark is decorative — the accessible name for
+           the link lives on the badge. -->
+      <div class="footer__mark" data-footer-mark data-reveal>
+        <span class="footer__word" aria-hidden="true">ALPHE</span>
+        <a class="footer__badge" href="/" aria-label="Alphe AI home">
+          <svg class="footer__glyph" viewBox="0 0 91.08 100" aria-hidden="true" focusable="false">
+            <path
+              class="footer__glyph-path"
+              pathLength="1"
+              d="M1.82 0L20.27 0L21.42 1.58L22.75 3.76L24.82 6.49L26.52 9.1L29.67 13.29L35.01 21.18L37.99 25.18L43.57 33.37L50.67 43.26L52.67 46.36L57.71 53.28L58.43 52.85L60.62 51.03L63.35 48.54L65.9 45.93L67.9 43.57L70.33 40.23L72.03 37.44L73.3 34.83L74.33 32.16L75.24 28.52L75.67 25.06L75.73 0L91.02 0L91.08 23.36L90.96 26.52L90.23 31.86L89.56 34.65L88.29 38.65L86.77 42.23L84.89 45.93L82.89 49.15L79.98 53.09L75.85 57.83L72.75 60.92L68.75 64.38L66.63 66.02L67.05 66.81L69.36 69.9L72.63 74.82L80.46 85.74L81.49 87.44L84.83 92.05L85.38 93.02L88.83 97.82L90.23 100L71.84 100L65.9 91.38L63.17 87.68L60.56 83.74L58.43 80.95L56.55 78.09L53.22 73.54L51.64 71.06L47.63 65.59L40.29 54.92L33.5 45.45L32.58 45.93L28.22 49.76L25.24 52.73L22.75 55.58L20.75 58.37L18.99 61.35L17.29 64.99L16.63 66.93L15.78 70.33L15.41 73.54L15.41 99.94L0 99.94L0.06 73.36L0.36 69.9L0.79 67.23L1.58 63.83L2.73 60.19L4.25 56.49L6.19 52.67L8.74 48.67L11.1 45.51L13.23 42.96L16.2 39.81L20.45 35.92L24.45 32.71L24.39 32.34L16.57 21.42L16.02 20.45L13.11 16.44L9.83 11.53L7.83 8.92L6.31 6.55L3.82 3.16Z"
+            />
+          </svg>
+        </a>
+        <span class="footer__word" aria-hidden="true">AI</span>
+      </div>
+    </footer>
+  </body>
+</html>
