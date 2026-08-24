@@ -5,6 +5,15 @@ Every release of this site is recorded here. The format follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as it applies to a website rather than a
 library — see *Versioning* in README.md for what each position means here.
 
+## [1.0.1] — 2026-08-24
+
+### Removed
+
+- `_unused/img-brands/`, 93 vendor logo SVGs that nothing in the repo read. The provider marks the
+  site actually draws are inline `<symbol>` sprites in the markup, and `tools/logos.mjs` pulls its
+  source paths from the installed `@lobehub/icons-static-svg` package — the directory was a stale
+  copy of both.
+
 ## [1.0.0] — 2026-08-24
 
 First tagged release: the site as it is deployed at <https://alpheai.com>.
@@ -50,4 +59,5 @@ First tagged release: the site as it is deployed at <https://alpheai.com>.
   Disable the CDN in hPanel → Performance → CDN. DEPLOY.md carries the probe that tells the two
   apart.
 
+[1.0.1]: https://github.com/codetoinfinite/alphe-main/releases/tag/v1.0.1
 [1.0.0]: https://github.com/codetoinfinite/alphe-main/releases/tag/v1.0.0
