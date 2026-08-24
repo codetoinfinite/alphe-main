@@ -253,10 +253,10 @@ published SLA, and the ones drawn from third parties say so.
 - **Savings: up to 70%,** from three levers measured separately — routing down
   on traffic that does not need a frontier model (75–85%), semantic cache hits
   (30–50%), prompt compression (20–40% fewer input tokens).
-- **Leaderboard data is dated, and someone else's.** The model board on the home
-  page is a snapshot of the public Artificial Analysis leaderboard captured
-  6 August 2026 — their measurement, not ours. The accuracy-per-dollar boards
-  are ours and are labelled as such.
+- **The one board on the site is ours.** The home page shows a single research
+  question answered five ways, graded by one grader — Alphe's own measurement,
+  labelled as such where it appears. There is no third-party leaderboard on the
+  site at the moment, so treat every number on it as the vendor's.
 
 ## Security — what happens to the prompt
 

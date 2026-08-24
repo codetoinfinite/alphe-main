@@ -93,6 +93,7 @@ instructions for agents: https://alpheai.com/agents.md
   wire-compatible, so the request and response shapes are the ones your SDK
   already documents; /docs/ carries everything else. The full reference lands
   at general availability and belongs in this file when it does.
-- The model coverage table on the home page is a snapshot of the Artificial
-  Analysis public leaderboard, credited and dated on the page. It is their
-  measurement, not Alphe's.
+- The one board on the home page — a single research question answered five
+  ways — is Alphe's own measurement, graded by one grader against one task, and
+  it is labelled as such on the page. There is no third-party leaderboard on the
+  site at the moment.

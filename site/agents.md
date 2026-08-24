@@ -120,11 +120,10 @@ Every page is published as HTML and as Markdown at the same URL.
 - Coverage: **4,500+ models** and **7,000+ tool integrations** on one routing
   table.
 - Added latency: **~4 ms** to classify, **under 8 ms** of gateway overhead.
-- The model board on the home page is a snapshot of the public
-  [Artificial Analysis](https://artificialanalysis.ai/) leaderboard, captured
-  6 August 2026. It is their measurement, not Alphe's, and it is dated on the
-  page. The accuracy-per-dollar and single-question boards are Alphe's own
-  measurements and are labelled as such.
+- The one board on the home page — a single research question, answered five
+  ways — is Alphe's own measurement, and it is labelled as such on the page.
+  There is no independent leaderboard on the site at the moment, so nothing here
+  has been checked by a third party.
 - Pricing and latency figures on the site are indicative for a pre-launch
   product. Treat them as claims by the vendor, not as independently verified
   benchmarks.

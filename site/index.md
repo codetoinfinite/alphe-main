@@ -187,52 +187,6 @@ stack comes with it.
 - Pilot a new model on 5% of traffic, then roll it out. Same tools, no
   migration.
 
-## Half a point costs 108× more.
-
-One task set, one grader, five ways of answering it. Alphe routes a task for
-$0.0077 and scores 9 out of 10. The two frontier models score 9.5 — half a point
-more, for 92× and 108× the bill. Going cheap instead of routing costs 7.5× to 9×
-what routing costs and gives up 5 to 7 points doing it.
-
-Accuracy points returned per dollar spent:
-
-| Answer | Accuracy per dollar |
-| --- | --- |
-| Alphe | 1,169 |
-| Grok (SpaceXAI) | 69 |
-| Gemini (Google) | 29 |
-| GPT-5.6 Sol (OpenAI) | 13 |
-| Claude Opus 5 (Anthropic) | 11 |
-
-Alphe's own measurement — one task set, one grader, five ways of answering it.
-Accuracy is a 0–10 grade; cost is the whole bill for a task, provider tokens
-included.
-
-## No model wins every column.
-
-Independent measurements from Artificial Analysis, one harness across every
-model. Change what you sort by and the ranking comes apart: the model at the top
-of the quality index costs 78× the cheapest column here and writes at a seventh
-of the fastest one's speed. Routing is what you do about that.
-
-Artificial Analysis Intelligence Index — agentic tasks, coding, general
-capability and scientific reasoning, weighted equally:
-
-| Model | Index |
-| --- | --- |
-| Claude Opus 5 (max), Anthropic | 61 |
-| Qwen3.8 Max, Alibaba | 56 |
-| Grok 4.5 (high), SpaceXAI | 54 |
-| GPT-5.6 Luna (max), OpenAI | 51 |
-| Muse Spark 1.1 (xhigh), Meta | 51 |
-| Gemini 3.6 Flash, Google | 50 |
-| DeepSeek V4 Flash (max), DeepSeek | 50 |
-| Step 3.7 Flash, StepFun | 30 |
-
-Source: [Artificial Analysis](https://artificialanalysis.ai/), Intelligence
-Index v3.0. Snapshot 6 August 2026, 8 families off a 264-row board. Their
-measurement, not Alphe's.
-
 ## Two points cost 65× more.
 
 One question, five answers, one grader. Six weeks of a running flood, asked from

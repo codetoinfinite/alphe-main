@@ -299,8 +299,9 @@ Semver applies to what the site promises other people, not to the size of the di
 
 - **MAJOR** — a promise breaks. A URL stops resolving, the negotiation rules change shape, the
   security policy drops a header, or the form endpoint changes its contract.
-- **MINOR** — something is added and nothing breaks. A new page, a new machine-readable file, a new
-  section, a new check.
+- **MINOR** — what the site says changes and no promise moves. A new page, a new machine-readable
+  file, a new check; a section added, or one taken off the page while its route, its headers and its
+  Markdown twin stay exactly where they were.
 - **PATCH** — copy, styling, data refreshes and fixes that leave every promise where it was.
 
 Cutting one:
@@ -327,8 +328,15 @@ before it is treated as a claim:
 - The coverage lanes and the tools grid show representative names and marks, not a live catalogue.
   Provider marks are inline `<symbol>` sprites in the markup, each drawn from the vendor's own
   wordmark; they are used nominatively and confer no endorsement.
-- The benchmarks board is a dated snapshot, not a feed — 18 of 264 rows, one per family, from
-  Artificial Analysis. The date is printed under the board and lives in
+- Two of the home page's three boards — accuracy per dollar (`#perdollar`) and benchmarks
+  (`#bench`) — are commented out of `site/index.html` as of 24 August 2026 and removed from
+  `site/index.md`. Nothing else was taken out: the data files, the generators and the module that
+  sorts them are untouched, and the module walks `[data-bench]`, so it drives whatever boards the
+  markup leaves it. Restoring one is deleting its comment markers and putting its section back in
+  the Markdown twin, then re-running `node tools/llms-full.mjs`. `#bench` carries two pairs of
+  markers rather than one, because it contains a comment of its own and HTML comments do not nest.
+- The benchmarks board, when it is shown, is a dated snapshot rather than a feed — 18 of 264 rows,
+  one per family, from Artificial Analysis. The date is printed under the board and lives in
   `assets/js/data/models.js` alongside the numbers. Re-take it and re-run `tools/bench-gen.mjs`.
 - The forms are wired. All six post to `site/contact.php`, which is same-origin — the CSP has no
   external origins, so a hosted form service would mean widening it in four files. The endpoint

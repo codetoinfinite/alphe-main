@@ -5,6 +5,26 @@ Every release of this site is recorded here. The format follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as it applies to a website rather than a
 library — see *Versioning* in README.md for what each position means here.
 
+## [1.1.0] — 2026-08-24
+
+### Changed
+
+- The home page's two comparison boards — accuracy per dollar (`#perdollar`) and benchmarks
+  (`#bench`) — are commented out of `site/index.html` and taken out of `site/index.md`. Everything
+  they were built from stays: `assets/js/data/perdollar.js`, `assets/js/data/models.js`, the
+  generators in `tools/`, and the module that sorts them, which walks `[data-bench]` and now finds
+  one board instead of three. Restoring a board is deleting its comment markers and putting its
+  section back in the Markdown twin.
+- The one-question board that followed them no longer links up to the accuracy-per-dollar board,
+  and `llms.txt`, `agents.md` and `/docs/` no longer describe a third-party leaderboard the site
+  does not currently show.
+- `llms-full.txt` regenerated from the twins.
+
+### Note
+
+- The in-page anchors `#perdollar` and `#bench` no longer resolve. Nothing on the site links to
+  them any more; a bookmark straight to one will land on the home page instead.
+
 ## [1.0.1] — 2026-08-24
 
 ### Removed
@@ -59,5 +79,6 @@ First tagged release: the site as it is deployed at <https://alpheai.com>.
   Disable the CDN in hPanel → Performance → CDN. DEPLOY.md carries the probe that tells the two
   apart.
 
+[1.1.0]: https://github.com/codetoinfinite/alphe-main/releases/tag/v1.1.0
 [1.0.1]: https://github.com/codetoinfinite/alphe-main/releases/tag/v1.0.1
 [1.0.0]: https://github.com/codetoinfinite/alphe-main/releases/tag/v1.0.0
