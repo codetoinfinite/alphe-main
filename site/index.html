@@ -18,7 +18,14 @@
     <!-- Three, because the engines disagree: Safari and the older crawlers ask
          for the .ico, everything current prefers the .svg and scales it without
          a second raster, and iOS wants a square PNG it masks itself. The
-         sizes="32x32" stops Chrome assuming the .ico is 16 and upscaling it. -->
+         sizes="32x32" stops Chrome assuming the .ico is 16 and upscaling it.
+
+         A fourth copy of the .ico sits at the site root. These three links only
+         exist inside HTML, and the site serves documents that are not HTML:
+         open /llms.txt or /agents.md and the browser has no link to read, so it
+         falls back to the origin default at /favicon.ico. That path used to 404
+         into the 11 KB error page, which left the tab blank and taught the
+         browser to stop asking. -->
     <link rel="icon" href="/media/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/media/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
