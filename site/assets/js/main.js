@@ -52,6 +52,13 @@ for (const link of qsa('.nav__link[href]')) {
   if (href !== '/' && here.startsWith(href)) link.setAttribute('aria-current', 'page');
 }
 
+// "/" is excluded above because startsWith would match it from every page. It
+// still needs marking, and the link that goes there is the brand — so the home
+// page was the one page in the nav that announced no current location at all.
+// The brand is not a .nav__link, so this says where you are without changing
+// how anything looks.
+if (here === '/') qs('.nav__brand[href="/"]')?.setAttribute('aria-current', 'page');
+
 // WebGL is loaded only when a page actually has a canvas for it. three.js is
 // the single largest asset on the site and the sub-pages that do not draw
 // anything should never pay for it.
@@ -139,6 +146,14 @@ if (glCanvases.length) {
         for (const f of fields) f.remeasure();
       }, 260);
     });
-
-  });
+  })
+    // three.js is the largest asset on the site and this import is the one here
+    // that can fail on its own — a connection dropped mid-load rejects it. The
+    // field is decorative, so the page is right to carry on without it; what it
+    // was doing was carrying on without saying so, as an unhandled rejection
+    // nobody sees. Catching on the tail covers the import and the setup after
+    // it, and neither has anything the page needs.
+    .catch((err) => {
+      console.error('alphe: the particle field could not start —', err);
+    });
 }

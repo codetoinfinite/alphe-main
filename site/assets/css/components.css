@@ -234,6 +234,14 @@
   background: var(--brand-hover);
 }
 
+/* Disabled is the send in flight, and it had no styling at all: the button kept
+   its pointer cursor and lit up on hover while it was refusing to be pressed.
+   Removing pointer events takes both back at once. */
+.btn:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .btn--sm {
   padding: 10px 14px 9px;
   font-size: var(--text-xs);

@@ -5636,3 +5636,83 @@ html.reduced-motion .tool::after {
     font-size: var(--text-xs);
   }
 }
+
+/* Print -------------------------------------------------------------------- */
+/*
+   The site is white on near-black, and everything below the fold is opacity:0
+   until an observer reveals it. A print job takes the page exactly as it stands,
+   so what came out was a sheet of ink with the reader's current screenful on it
+   and blank paper for the rest.
+
+   Nothing here is a second design. It undoes the three things that do not
+   survive the trip to paper — the dark ground, the reveal, and the furniture
+   that only means anything on a screen — and leaves the page's own layout to do
+   the rest. */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  /* On paper everything is simply there. !important because the reveal rules are
+     bound to html.js and would otherwise outrank a plain declaration here. */
+  html.js [data-reveal],
+  html.js [data-reveal].is-revealed,
+  html.js [data-split-lines] .split-char,
+  html.js .reach .reach__node,
+  html.js .reach .reach__node::after {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Dark panels print as dark panels: a full cartridge for one page, and black
+     type on them either way. Flattening every surface is what makes the rest of
+     the page legible without restyling any of it. */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    border-color: #bbb !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Screen-only furniture. Every canvas on the site is decorative and already
+     aria-hidden; the grain, the custom cursor and the fixed bar print as noise
+     or as a band across the top of every sheet. */
+  canvas,
+  .grain,
+  .cursor,
+  .nav,
+  .marquee {
+    display: none !important;
+  }
+
+  /* A destination that was a hover on screen and is nothing at all on paper. */
+  main a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  p,
+  li,
+  blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+}

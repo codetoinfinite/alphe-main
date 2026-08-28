@@ -86,20 +86,23 @@ header('X-Content-Type-Options: nosniff');
 // submission that worked reads as a site that is broken, so it gets a page.
 define('WANTS_JSON', strpos((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json') !== false);
 
-function out(int $code, array $body): void {
-    http_response_code($code);
-
+/**
+ * The response body, and the Content-Type that goes with it.
+ *
+ * Split out of out() so the early answer below can send exactly the same bytes
+ * without a second copy of the page drifting away from this one.
+ */
+function responseBody(array $body): string {
     if (WANTS_JSON) {
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        exit;
+        return (string) json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     $ok  = ($body['ok'] ?? false) === true;
     $msg = $ok ? 'On the list, we will be in touch.' : (string) ($body['error'] ?? 'Could not send');
 
     header('Content-Type: text/html; charset=utf-8');
-    echo '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         . '<meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<title>' . ($ok ? 'Thank you' : 'Not sent') . ' &mdash; Alphe</title>'
         . '<style>body{background:#08090a;color:#f2f3f5;margin:0;min-height:100vh;display:grid;'
@@ -107,7 +110,63 @@ function out(int $code, array $body): void {
         . 'BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}a{color:#5b8cff}</style></head>'
         . '<body><main><p>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</p>'
         . '<p><a href="/">Back to alpheai.com</a></p></main></body></html>';
+}
+
+function out(int $code, array $body): void {
+    http_response_code($code);
+    echo responseBody($body);
     exit;
+}
+
+/**
+ * Answer now, keep running.
+ *
+ * Everything past the CSV write is already decided: a lead on disk is a 200
+ * whatever the mail does next. So the person does not have to sit through the
+ * send, and they were sitting through a lot of it -- SMTP_TIMEOUT applies to
+ * the connect and to every read after it, so a mail server that accepts the
+ * connection and then goes quiet costs twelve seconds of a form that reads as
+ * stuck, and one that stalls on each step in turn costs considerably more.
+ *
+ * litespeed_finish_request() is the LiteSpeed SAPI's fastcgi_finish_request():
+ * flush, let the connection go, carry on with the script. Hostinger runs
+ * LiteSpeed. Where neither function exists -- mod_php, the built-in server --
+ * this returns false without having sent anything, and the caller falls back to
+ * sending the mail in front of the response exactly as it did before. The slow
+ * path stays the old path rather than becoming a broken one.
+ */
+function finishRequest(int $code, array $body): bool {
+    if (!function_exists('litespeed_finish_request') && !function_exists('fastcgi_finish_request')) {
+        return false;
+    }
+
+    // The connection is about to close while there is still work to do, and the
+    // work is the mail. Losing it to a disconnect is the thing being fixed.
+    ignore_user_abort(true);
+
+    http_response_code($code);
+    $payload = responseBody($body);
+
+    // An explicit length lets the client finish reading on its own instead of
+    // waiting on a close, which is what makes the answer land immediately.
+    header('Content-Length: ' . strlen($payload));
+    echo $payload;
+
+    while (ob_get_level() > 0) {
+        ob_end_flush();
+    }
+    flush();
+
+    return function_exists('litespeed_finish_request')
+        ? litespeed_finish_request()
+        : fastcgi_finish_request();
+}
+
+/** One accepted submission against this address's throttle window. */
+function recordSend(string $store, array $seen, int $now): void {
+    $seen['last'] = $now;
+    $seen['n']    = (int) $seen['n'] + 1;
+    @file_put_contents($store, json_encode($seen), LOCK_EX);
 }
 
 function fail(int $code, string $message): void {
@@ -585,6 +644,26 @@ if (!$kept) {
     error_log('alphe: could not write the lead CSV' . ($dir === null ? ' (no writable directory)' : ' in ' . $dir));
 }
 
+// ------------------------------------------------------------------ the answer
+//
+// Sent here, before the mail, because by here it is already decided: a lead in
+// the CSV is answered 200 no matter what the send does below. Waiting for the
+// send only ever made the person wait -- it never changed what they were told.
+//
+// The throttle counter is written first for the same reason. Past the point the
+// connection closes there is nobody left to tell that it did not get written.
+//
+// A CSV that could not be written is the one case the answer still depends on
+// the mail, so that path stays in front of the response, unchanged.
+$recorded = false;
+$answered = false;
+
+if ($kept) {
+    recordSend($store, $seen, $now);
+    $recorded = true;
+    $answered = finishRequest(200, ['ok' => true]);
+}
+
 // -------------------------------------------------------------------- the mail
 //
 // Authenticated SMTP when the password file is on the box. mail() stays behind
@@ -627,12 +706,16 @@ error_log('alphe: submission kept=' . ($kept ? 'yes' : 'no') . ' route=' . $rout
 // Only both failing is a failure. A stored lead that could not be mailed is in
 // the CSV and will be answered; saying "could not send" to that would send the
 // person away from a form that in fact worked.
+if ($answered) {
+    exit;
+}
+
 if (!$sent && !$kept) {
     fail(502, 'Could not send — please email ' . TO);
 }
 
-$seen['last'] = $now;
-$seen['n'] = (int) $seen['n'] + 1;
-@file_put_contents($store, json_encode($seen), LOCK_EX);
+if (!$recorded) {
+    recordSend($store, $seen, $now);
+}
 
 out(200, ['ok' => true]);

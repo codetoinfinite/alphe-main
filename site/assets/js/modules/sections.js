@@ -380,12 +380,39 @@ const RULES = {
 // widened for a form service. See site/contact.php for why that mattered.
 const ENDPOINT = '/contact.php';
 
+// A fetch with nothing at the other end never settles on its own, and a
+// "Sending…" that never changes is a form that reads as broken. Fifteen seconds
+// is well past any answer worth waiting for -- the endpoint answers in
+// milliseconds now that it sends the mail after the response.
+const SEND_TIMEOUT = 15000;
+
+// Said whenever the answer did not come from the endpoint. Every other case has
+// wording of its own.
+const NO_REACH = 'Could not send — email hello@alpheai.com';
+
+// Tags the endpoint's own wording so the catch below can tell it apart from a
+// connection that never got there. Every Error has a message, so testing for
+// one told them apart not at all: the raw "Failed to fetch" won every time and
+// the address above was written but never shown.
+const serverError = (message) => Object.assign(new Error(message), { fromServer: true });
+
 export function initForm(root = document) {
+  let n = 0;
+
   for (const form of qsa('[data-form]', root)) {
     const inputs = qsa('.form__input', form);
     const status = qs('.form__status', form);
     const submit = qs('button[type="submit"]', form);
     let sending = false;
+
+    // Both the validation message and the send result land in the status line,
+    // so that is what the fields are described by. Without it a screen reader
+    // says a field is invalid and never says which part of it, because the
+    // sentence explaining that sits in an element nothing points at.
+    if (status) {
+      if (!status.id) status.id = `form-status-${++n}`;
+      for (const input of inputs) input.setAttribute('aria-describedby', status.id);
+    }
 
     // The form carries novalidate: the browser's own bubble would swallow
     // submit for anything it dislikes, so this handler would only ever see
@@ -429,7 +456,14 @@ export function initForm(root = document) {
 
       sending = true;
       if (submit) submit.disabled = true;
+      // Announces the wait to a screen reader, and is what the disabled button
+      // is styled from -- a submit that cannot be pressed should not still be
+      // offering the cursor that says it can.
+      form.setAttribute('aria-busy', 'true');
       status.textContent = 'Sending…';
+
+      const ctrl  = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), SEND_TIMEOUT);
 
       try {
         // Accept is what the endpoint reads to decide between a JSON answer and
@@ -443,11 +477,12 @@ export function initForm(root = document) {
             Accept: 'application/json',
           },
           body,
+          signal: ctrl.signal,
         });
         // A server that fell over serves an HTML error page, so the parse is
         // allowed to fail and the status line is what decides.
         const data = await res.json().catch(() => null);
-        if (!res.ok || !data?.ok) throw new Error(data?.error || `Could not send (${res.status})`);
+        if (!res.ok || !data?.ok) throw serverError(data?.error || `Could not send (${res.status})`);
 
         status.textContent = 'On the list, we will be in touch';
         status.classList.add('is-ok');
@@ -456,11 +491,17 @@ export function initForm(root = document) {
       } catch (err) {
         // Said out loud, and the fallback address said with it. The version of
         // this that reported success either way lost every lead it took.
-        status.textContent = err?.message || 'Could not send — email hello@alpheai.com';
+        //
+        // The endpoint's own wording when it answered; the address when it did
+        // not, because "Failed to fetch" and an aborted request are the same
+        // thing to the person reading them -- nothing arrived, write instead.
+        status.textContent = err?.fromServer ? err.message : NO_REACH;
         status.classList.add('is-err');
       } finally {
+        clearTimeout(timer);
         sending = false;
         if (submit) submit.disabled = false;
+        form.removeAttribute('aria-busy');
       }
     });
   }

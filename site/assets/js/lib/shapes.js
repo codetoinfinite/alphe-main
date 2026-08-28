@@ -512,7 +512,16 @@ export function shapeScatter(count, width, height, seed) {
 export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+
+    // Only when it is actually cross-origin. The HTTP cache keys on credentials
+    // mode as well as URL, so setting this unconditionally gave the same file a
+    // second cache entry from the one the <img> in the header already filled —
+    // the logo came down twice, 219KB for a 107KB file, on every cold load. A
+    // same-origin image needs no CORS to be readable by a canvas.
+    if (new URL(src, location.href).origin !== location.origin) {
+      img.crossOrigin = 'anonymous';
+    }
+
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;

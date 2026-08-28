@@ -27,6 +27,12 @@ export function splitText(el) {
   const words = source.split(/(\s+)/);
   el.textContent = '';
 
+  // One span per letter is a heading spelled out letter by letter -- inline
+  // blocks are separate boxes, so the accessible name is computed from them
+  // one at a time and a screen reader reads "A. l. p. h. e." The name comes
+  // from the source string instead, and the boxes are taken out of the tree.
+  el.setAttribute('aria-label', source);
+
   const chars = [];
   for (const word of words) {
     if (/^\s+$/.test(word)) {
@@ -35,6 +41,7 @@ export function splitText(el) {
     }
     const wordEl = document.createElement('span');
     wordEl.className = 'split-word';
+    wordEl.setAttribute('aria-hidden', 'true');
     for (const ch of word) {
       const charEl = document.createElement('span');
       charEl.className = 'split-char';

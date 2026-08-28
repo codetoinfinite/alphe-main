@@ -163,6 +163,8 @@ export function initCounters(root = document) {
 // changes while open.
 
 export function initAccordion(root = document) {
+  let panelId = 0;
+
   for (const accordion of qsa('[data-accordion]', root)) {
     const single = accordion.dataset.accordion !== 'multi';
     const items = qsa('.accordion__item', accordion);
@@ -174,8 +176,22 @@ export function initAccordion(root = document) {
 
       trigger.setAttribute('aria-expanded', 'false');
 
+      // aria-expanded was being announced against nothing: the panel it refers
+      // to had no id and the trigger no aria-controls, so "collapsed" was said
+      // without ever saying what was collapsed.
+      if (!panel.id) panel.id = `accordion-panel-${++panelId}`;
+      trigger.setAttribute('aria-controls', panel.id);
+
+      // A closed panel is height:0 and overflow:hidden, which hides it from the
+      // eye and from nothing else — its links stayed in the tab order and in the
+      // accessibility tree, six of them across the site, each one focusing text
+      // that is not on screen. inert closes the branch properly, and unlike
+      // display:none or visibility it leaves the height transition alone.
+      panel.inert = true;
+
       function close(el) {
         const p = qs('.accordion__panel', el);
+        p.inert = true;
         p.style.height = `${p.scrollHeight}px`;
         requestAnimationFrame(() => {
           p.style.height = '0px';
@@ -200,6 +216,7 @@ export function initAccordion(root = document) {
 
         item.classList.add('is-open');
         trigger.setAttribute('aria-expanded', 'true');
+        panel.inert = false;
         panel.style.height = `${panel.scrollHeight}px`;
         panel.addEventListener(
           'transitionend',
